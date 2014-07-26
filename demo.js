@@ -6,7 +6,7 @@
 
 	var query;
 
-	var queryRule = "F=F[-FC]F[+FC][FC]";
+	var queryRule = "I=I[+IO]I[-IO][IO]";
 	var queryZoom = 14;
 	var queryAngle = 30;
 	var queryTD		= true;
@@ -57,7 +57,7 @@
 			data = frequencyData;
 			VisFrequency.checked = "true";
 		}
-		system = LSystem("F",LSInput.value,parseInt(LSIter.value),1<<parseInt(LSSize.value),parseInt(LSAngle.value));
+		system = LSystem("I",LSInput.value,parseInt(LSIter.value),1<<parseInt(LSSize.value),parseInt(LSAngle.value));
 		redraw();
 	}
 
@@ -81,21 +81,7 @@
 	var timeDomainData = new Uint8Array(analyser.frequencyBinCount);
 	var frequencyData = new Uint8Array(analyser.frequencyBinCount);
 	
-	var keys = {
-		line:document.getElementById("keysLine").value.split(" "),
-		fruit:document.getElementById("keysFruit").value.split(" "),
-		hidden:document.getElementById("keysHidden").value.split(" "),
-		antenna:document.getElementById("keysAntenna").value.split(" "),
-		tentacle:document.getElementById("keysTentacle").value.split(" "),
-		left:document.getElementById("keysLeft").value.split(" "),
-		right:document.getElementById("keysRight").value.split(" "),
-		up:document.getElementById("keysUp").value.split(" "),
-		down:document.getElementById("keysDown").value.split(" "),
-		push:document.getElementById("keysPush").value.split(" "),
-		pop:document.getElementById("keysPop").value.split(" ")
-	}
-
-	console.log(keys);
+	
 	var LSform = document.getElementById("LSform");
 
 	var LSIter = document.getElementById("LSIter");
@@ -178,7 +164,7 @@
 		data = frequencyData;
 		VisFrequency.checked = "true";
 	}
-	var system = LSystem("F",queryRule,queryIter,queryZoom,queryAngle);
+	var system = LSystem("I",queryRule,queryIter,queryZoom,queryAngle);
 	window.addEventListener("wheel",function(e){	
 		LSSize.value = parseInt(LSSize.value)+-1*e.deltaY/Math.abs(e.deltaY);
 		document.getElementById("LSzoomAmount").textContent=parseInt(LSSize.value);
@@ -218,12 +204,12 @@
 		//console.dir(e);
 		switch(e.target){
 			case LSInput:
-				system = LSystem("F",LSInput.value,parseInt(LSIter.value),1<<parseInt(LSSize.value),parseInt(LSAngle.value));
+				system = LSystem("I",LSInput.value,parseInt(LSIter.value),1<<parseInt(LSSize.value),parseInt(LSAngle.value));
 				redraw();
 				break;
 			case LSIter:
 				document.getElementById("LSIterName").textContent=" "+parseFloat(LSIter.value);
-				system = LSystem("F",LSInput.value,parseInt(LSIter.value),1<<parseInt(LSSize.value),parseInt(LSAngle.value));
+				system = LSystem("I",LSInput.value,parseInt(LSIter.value),1<<parseInt(LSSize.value),parseInt(LSAngle.value));
 				redraw();
 				break;
 			case VisTimeDomain:
@@ -456,87 +442,85 @@
 			for(var i = 0; i<sequence.length; i++){
 				switch(sequence[i]){
 
-					case "F":
-						F();
-						break;
-					case "0":
-						F();
-						break;
-					case "9":
-						F();
-						break;
-					case "8":
-						F();
-						break;
-					case "1":
-						C();
-						break;
-					case "C":
-						C();
-						break;
-					case "S":
-						S();
-						break;
-					case "O":
-						S();
-						break;
-					case "[":
-						ctx.save();
-						break;
-					case "]":
-						ctx.restore();
-						break;
-					case "(":
-						ctx.save();
-						break;
-					case ")":
-						ctx.restore();
-						break;
-					case "T":
-						var n = (Math.floor(data[i%data.length]/256*10))
-						
-						
-						F(n,true);
-						
-						break;
-					case "t":
-						var n = (Math.floor(data[i%data.length]/256*10))
-						
-						
-						F(n,true,true,false);
-						break;
-					case "?":
-						if(data[i%data.length]>=128){
-							ctx.rotate(angleL);
-						}else {
-							ctx.rotate(angleR);
-						}
-						break;
-					case "+":
-						//(data[i%data.length]/128-1)*Math.PI*.25+
-						ctx.rotate(angleL);
-						break;
-					case "-":
-						ctx.rotate(angleR);
-						break;
-					case ">":
-						ctx.scale(1*scaleUP,1*scaleUP);
-						break;
-					case "<":
-						ctx.scale(1/scaleDOWN,1/scaleDOWN);
-						break;
+					case "i":Line();break;
+					case "I":Line();break;
+					case "f":Line();break;
+					case "F":Line();break;
+
+					case "L":Line();break;
+					case "O":Fruit();break;
+					case "H":Invisible();break;
+					case "S":Antenna();break;
+					case "W":Tentacle();break;
+					case "+":turnLeft();break;
+					case "-":turnRight();break;
+					case ">":scaleUp();break;
+					case "<":scaleDown();break;
+					case "[":pushStack();break;
+					case "]":popStack();break;
+
+					case "1":Line();break;
+					case "*":Fruit();break;
+					case "0":Invisible();break;
+					case "3":Antenna();break;
+					case "5":Tentacle();break;
+					case "4":turnLeft();break;
+					case "6":turnRight();break;
+					case "8":scaleUp();break;
+					case "2":scaleDown();break;
+					case "7":pushStack();break;
+					case "9":popStack();break;
 					
-					default:
-						break;
+					case "l":Line();break;
+					case "o":Fruit();break;
+					case "h":Invisible();break;
+					case "s":Antenna();break;
+					case "w":Tentacle();break;
+					case "b":turnLeft();break;
+					case "d":turnRight();break;
+					case "u":scaleUp();break;
+					case "n":scaleDown();break;
+					case "q":pushStack();break;
+					case "p":popStack();break;
 					
+					
+					default:break;
 				}
 			}
-			function S(){
+			function popStack(){
+				ctx.restore();
+			}
+			function pushStack(){
+				ctx.save();
+			}
+			function turnRight(){
+				ctx.rotate(angleR);
+			}
+			function turnLeft(){
+				ctx.rotate(angleL);
+			}
+			function scaleUp(){
+				ctx.scale(1*scaleUP,1*scaleUP);
+			}
+			function scaleDown(){
+				ctx.scale(1/scaleDOWN,1/scaleDOWN);
+			}
+			function Antenna(){
+				var n = (Math.floor(data[i%data.length]/256*10))
+				Line(n,true);
+				
+				
+			}
+			function Tentacle(){
+				var n = (Math.floor(data[i%data.length]/256*10))
+				Line(n,true,true,false);
+			}
+			function Invisible(){
 				ctx.moveTo((data[(i)%data.length]/256*FL/2000)+FL/2000,0);
 				ctx.translate((data[(i)%data.length]/256*FL/2000)+FL/2000,0);
 			}
 
-			function F(num,r,f,m){
+			function Line(num,r,f,m){
 				if(typeof num === "undefined"){num = 1;}
 				if(typeof r === "undefined"){r = false;}
 				if(typeof f === "undefined"){f = false;}
@@ -569,7 +553,7 @@
 				}
 				ctx.stroke();
 			}
-			function C(){
+			function Fruit(){
 				ctx.beginPath()
 				ctx.fillStyle="hsl("+(data[i%data.length]*1.75)+",100%,50%)";
 				ctx.arc(0,0,Math.abs(.385*data[i%data.length]/256*FL/2000),0,Math.PI*2);
