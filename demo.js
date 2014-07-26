@@ -7,13 +7,13 @@
 	var query;
 
 	var queryRule = "F=F[-FC]F[+FC][FC]";
-	var queryZoom = 18;
+	var queryZoom = 14;
 	var queryAngle = 30;
 	var queryTD		= true;
 	var querySmooth = 0.8;
 	var queryIter  = 4;
-	var queryFade = "#445566FF";
-	var queryPlant = "#22AAEEFF";
+	var queryFade = "#0F4499FF";
+	var queryPlant = "#FFFFFF88";
 	
 	/*
 	 F f [] +- <> T t C = Left Right Backspace    √ ⇦ ␡ 
@@ -38,7 +38,7 @@
 		LSSize.value = queryZoom;
 		LSInput.value = queryRule;
 		LSAngle.value = queryAngle;
-		LSAngleName.innerText = " "+parseInt(LSAngle.value)+"°";
+		LSAngleName.textContent = " "+parseInt(LSAngle.value)+"°";
 
 		VisSmoothing.value = querySmooth;
 		clearColor.value = queryFade.slice(0,7);
@@ -46,9 +46,9 @@
 		plantColor.value = queryPlant.slice(0,7);
 		plantAlpha.value = parseInt(queryPlant.slice(7,9),16)/256;
 
-		document.getElementById("LSzoomAmount").innerText=" "+parseInt(LSSize.value);
-		document.getElementById("LSIterName").innerText=" "+parseInt(LSIter.value);
-		document.getElementById("LSSmoothAmount").innerText=" "+parseFloat(VisSmoothing.value);
+		document.getElementById("LSzoomAmount").textContent=" "+parseInt(LSSize.value);
+		document.getElementById("LSIterName").textContent=" "+parseInt(LSIter.value);
+		document.getElementById("LSSmoothAmount").textContent=" "+parseFloat(VisSmoothing.value);
 
 		if(queryTD){
 			data = timeDomainData;
@@ -113,7 +113,7 @@
 	var LSAngle = document.getElementById("LSAngle");
 		LSAngle.value = queryAngle;
 	var LSAngleName = document.getElementById("LSAngleName");
-		LSAngleName.innerText = " "+parseInt(LSAngle.value)+"°";
+		LSAngleName.textContent = " "+parseInt(LSAngle.value)+"°";
 	var VisTimeDomain = document.getElementById("VisTimeDomain");
 		VisTimeDomain.onchange=update;
 	var VisFrequency = document.getElementById("VisFrequency");
@@ -180,8 +180,8 @@
 	}
 	var system = LSystem("F",queryRule,queryIter,queryZoom,queryAngle);
 	window.addEventListener("wheel",function(e){	
-		LSSize.value = parseInt(LSSize.value)+-1*e.deltaY/100;
-		document.getElementById("LSzoomAmount").innerText=parseInt(LSSize.value);
+		LSSize.value = parseInt(LSSize.value)+-1*e.deltaY/Math.abs(e.deltaY);
+		document.getElementById("LSzoomAmount").textContent=parseInt(LSSize.value);
 		system.setZoom(1<<parseInt(LSSize.value));
 		updateHistory();
 		redraw();
@@ -222,7 +222,7 @@
 				redraw();
 				break;
 			case LSIter:
-				document.getElementById("LSIterName").innerText=" "+parseFloat(LSIter.value);
+				document.getElementById("LSIterName").textContent=" "+parseFloat(LSIter.value);
 				system = LSystem("F",LSInput.value,parseInt(LSIter.value),1<<parseInt(LSSize.value),parseInt(LSAngle.value));
 				redraw();
 				break;
@@ -235,16 +235,16 @@
 				redraw();
 				break;
 			case LSAngle:
-				LSAngleName.innerText = " "+parseInt(LSAngle.value)+"°";
+				LSAngleName.textContent = " "+parseInt(LSAngle.value)+"°";
 				system.setAngle(parseInt(LSAngle.value));
 				redraw();
 				break;
 			case VisSmoothing:
-				document.getElementById("LSSmoothAmount").innerText=" "+parseFloat(VisSmoothing.value);
+				document.getElementById("LSSmoothAmount").textContent=" "+parseFloat(VisSmoothing.value);
 				analyser.smoothingTimeConstant=parseFloat(VisSmoothing.value);
 				break;
 			case LSSize:
-				document.getElementById("LSzoomAmount").innerText=" "+parseInt(LSSize.value);
+				document.getElementById("LSzoomAmount").textContent=" "+parseInt(LSSize.value);
 				system.setZoom(1<<parseInt(LSSize.value));
 				redraw();
 				break;
@@ -437,11 +437,13 @@
 				});
 				return rewrite(n-1);
 			}else{
-				return sequence;
+				return translate(sequence);
 			}
 		}
-		function checkKey(s){
+		function translate(s){
+			for(var i = 0; i<s.length; i++){
 
+			}
 		}
 		function draw(data){
 			//clear(clearColor);
@@ -453,7 +455,7 @@
 			ctx.strokeStyle = toRGBA(plantColor.value,plantAlpha.value);
 			for(var i = 0; i<sequence.length; i++){
 				switch(sequence[i]){
-					
+
 					case "F":
 						F();
 						break;
