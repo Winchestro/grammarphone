@@ -42,12 +42,16 @@ audio{
 	cursor: pointer;
 	width: auto;
 }
+input[type="text"]{
+	font-family: consolas,monospace;
+	font-size: 18px;
+	font-weight: bolder;
+}
 #LSInput{
 	width: 100%;
-	font-family: consolas,monospace;
 	font-size: 22px;
 	padding: 0px 8px;
-		border:none;
+	border:none;
 }
 
 .row{
@@ -111,7 +115,10 @@ div.ui.group>input{
 	margin-left:auto;
 }
 div.ui.group>input[type="text"]{
-	padding:4px 6px;
+	padding:0px 6px;
+	border:none;
+	background:#DDD;
+	
 }
 
 #plantAlpha, #clearAlpha{

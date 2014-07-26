@@ -81,9 +81,21 @@
 	var timeDomainData = new Uint8Array(analyser.frequencyBinCount);
 	var frequencyData = new Uint8Array(analyser.frequencyBinCount);
 	
+	var keys = {
+		line:document.getElementById("keysLine").value.split(" "),
+		fruit:document.getElementById("keysFruit").value.split(" "),
+		hidden:document.getElementById("keysHidden").value.split(" "),
+		antenna:document.getElementById("keysAntenna").value.split(" "),
+		tentacle:document.getElementById("keysTentacle").value.split(" "),
+		left:document.getElementById("keysLeft").value.split(" "),
+		right:document.getElementById("keysRight").value.split(" "),
+		up:document.getElementById("keysUp").value.split(" "),
+		down:document.getElementById("keysDown").value.split(" "),
+		push:document.getElementById("keysPush").value.split(" "),
+		pop:document.getElementById("keysPop").value.split(" ")
+	}
 
-
-	
+	console.log(keys);
 	var LSform = document.getElementById("LSform");
 
 	var LSIter = document.getElementById("LSIter");
@@ -428,6 +440,9 @@
 				return sequence;
 			}
 		}
+		function checkKey(s){
+
+		}
 		function draw(data){
 			//clear(clearColor);
 			ctx.setTransform(1,0,0,1,0,0);
@@ -438,6 +453,7 @@
 			ctx.strokeStyle = toRGBA(plantColor.value,plantAlpha.value);
 			for(var i = 0; i<sequence.length; i++){
 				switch(sequence[i]){
+					
 					case "F":
 						F();
 						break;
@@ -510,53 +526,53 @@
 					
 					default:
 						break;
-					function S(){
-						ctx.moveTo((data[(i)%data.length]/256*FL/2000)+FL/2000,0);
-						ctx.translate((data[(i)%data.length]/256*FL/2000)+FL/2000,0);
-					}
-
-					function F(num,r,f,m){
-						if(typeof num === "undefined"){num = 1;}
-						if(typeof r === "undefined"){r = false;}
-						if(typeof f === "undefined"){f = false;}
-						if(typeof m === "undefined"){m = true;}
-						ctx.beginPath();
-						for(var v = 0; v<num; v++){
-							if(r){
-								if(f){
-									if(data[(i+v)%data.length]<96){
-										ctx.rotate(angleL);
-									}else if(data[(i+v)%data.length]>160){
-										ctx.rotate(angleR);
-									}
-								}else{
-									ctx.rotate((data[(i+v)%data.length]/128-1)*angleL);
-								}
-							}
-							//ctx.lineWidth = (data[(i+v)%data.length]/64+1)*FL/20;
-							ctx.lineWidth = FL/10000;
-							if(m){
-								ctx.moveTo((data[(i+v)%data.length]/256*FL/2000)+FL/2000,0);
-								ctx.lineTo(0,0);
-								ctx.translate((data[(i+v)%data.length]/256*FL/2000)+FL/2000,0);
-							}else{
-								ctx.moveTo(FL/2000,0);
-								ctx.lineTo(0,0);
-								ctx.translate(FL/2000,0);
-							}
-						
-						}
-						ctx.stroke();
-					}
-					function C(){
-						ctx.beginPath()
-						ctx.fillStyle="hsl("+(data[i%data.length]*1.75)+",100%,50%)";
-						ctx.arc(0,0,Math.abs(.385*data[i%data.length]/256*FL/2000),0,Math.PI*2);
-						ctx.fill();
-					}
+					
 				}
 			}
-			
+			function S(){
+				ctx.moveTo((data[(i)%data.length]/256*FL/2000)+FL/2000,0);
+				ctx.translate((data[(i)%data.length]/256*FL/2000)+FL/2000,0);
+			}
+
+			function F(num,r,f,m){
+				if(typeof num === "undefined"){num = 1;}
+				if(typeof r === "undefined"){r = false;}
+				if(typeof f === "undefined"){f = false;}
+				if(typeof m === "undefined"){m = true;}
+				ctx.beginPath();
+				for(var v = 0; v<num; v++){
+					if(r){
+						if(f){
+							if(data[(i+v)%data.length]<96){
+								ctx.rotate(angleL);
+							}else if(data[(i+v)%data.length]>160){
+								ctx.rotate(angleR);
+							}
+						}else{
+							ctx.rotate((data[(i+v)%data.length]/128-1)*angleL);
+						}
+					}
+					//ctx.lineWidth = (data[(i+v)%data.length]/64+1)*FL/20;
+					ctx.lineWidth = FL/10000;
+					if(m){
+						ctx.moveTo((data[(i+v)%data.length]/256*FL/2000)+FL/2000,0);
+						ctx.lineTo(0,0);
+						ctx.translate((data[(i+v)%data.length]/256*FL/2000)+FL/2000,0);
+					}else{
+						ctx.moveTo(FL/2000,0);
+						ctx.lineTo(0,0);
+						ctx.translate(FL/2000,0);
+					}
+				
+				}
+				ctx.stroke();
+			}
+			function C(){
+				ctx.beginPath()
+				ctx.fillStyle="hsl("+(data[i%data.length]*1.75)+",100%,50%)";
+				ctx.arc(0,0,Math.abs(.385*data[i%data.length]/256*FL/2000),0,Math.PI*2);
+				ctx.fill();
+			}
 			//ctx.restore();
 			//return sequence;
 		}
