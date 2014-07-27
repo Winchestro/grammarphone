@@ -1,5 +1,5 @@
 
-define(["lsystem","url","jquery"],function demo(LSystem,query,$){
+define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,AudioPlayer){
 	"use strict";
 	window.q=$;
 	
@@ -16,26 +16,16 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 		$LSAngleName = $("#LSAngleName"),
 		$LSzoomAmount = $("#LSzoomAmount"),
 		$LSIterName = $("#LSIterName"),
-		$LSSmoothAmount = $("#LSSmoothAmount"),
-		$track =	$("#track");
+		$LSSmoothAmount = $("#LSSmoothAmount");
+		
 
 	
 	var looping;
 	var data;
-	var AudioContext = window.AudioContext||window.webkitAudioContext;
-	var sfx = new  AudioContext;
-	
-	var media = sfx.createMediaElementSource(track);
-	var analyser = sfx.createAnalyser();
-		analyser.fftSize=2048;
-
-	var timeDomainData = new Uint8Array(analyser.frequencyBinCount);
-	var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-	media.connect(analyser);
 	
 	query("http://www.winchestro.com",[
 		["rule",	"I=I[+IO]I[-IO][IO]",	function(s){return atob(decodeURIComponent(s))}],
-		["zoom",	14,						function(s){return parseInt(s)}],
+		["zoom",	47,						function(s){return parseInt(s)}],
 		["angle",	30,						function(s){return parseInt(s)}],
 		["td",		true,					function(s){return JSON.parse(s)}],
 		["smooth",	0.8,					function(s){return parseFloat(s)}],
@@ -48,10 +38,10 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 		updateInterface();
 
 		if(query.td){
-			data = timeDomainData;
+			data = AudioPlayer.timeDomainData;
 			VisTimeDomain.checked=true;
 		}else{
-			data = frequencyData;
+			data = AudioPlayer.frequencyData;
 			VisFrequency.checked=true;
 
 		}
@@ -82,22 +72,36 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 		
 		
 	}
-	$track.on("play",audioStart)
-	$track.on("pause",audioStop);
+	
 	
 	LSystem.init(query.rule,query.iter,query.zoom,query.angle);
 	
 	
-	$(window).on("wheel",function(e){
+	$(canvas2d)
+	.on("wheel",function(e){
 		var e = e.originalEvent;
 		$LSSize.val(parseInt($LSSize.val())+-1*e.deltaY/Math.abs(e.deltaY));
 		$LSzoomAmount.text(parseInt($LSSize.val()));
 		LSystem.setSize(parseInt($LSSize.val()));
 		updateHistory();
 		redraw();
+	})
+	.click(function(e){
+		console.log(typeof e.which);
+		if(e.which===2){
+			LSystem.setCenter(window.innerWidth/2,window.innerHeight/2)
+			redraw();
+		}
+	})
+	.on("contextmenu",function(e){
+		e.originalEvent.preventDefault();
+		LSystem.moveCenter((window.innerWidth/2-e.clientX)/3,(window.innerHeight/2-e.clientY)/3);
+		redraw();
+		
 	});
+
 	//$("#LSInput").on("focus",function(e){e.preventDefault()});
-	$("#filePicker").on("change",loadFile);
+	
 	$("#LSform").on("submit",function(e){e.preventDefault()})
 		.on("input",update);
 	
@@ -164,11 +168,11 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 				redraw();
 				break;
 			case VisTimeDomain:
-				data = timeDomainData;
+				data = AudioPlayer.timeDomainData;
 				redraw();
 				break;
 			case VisFrequency:
-				data = frequencyData;
+				data = AudioPlayer.frequencyData;
 				redraw();
 				break;
 			case LSAngle:
@@ -178,7 +182,7 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 				break;
 			case VisSmoothing:
 				$LSSmoothAmount.text(parseFloat($VisSmoothing.val()));
-				analyser.smoothingTimeConstant=parseFloat($VisSmoothing.val());
+				AudioPlayer.setSmoothing(parseFloat($VisSmoothing.val()));
 				break;
 			case LSSize:
 				$LSzoomAmount.text(parseInt($LSSize.val()));
@@ -236,34 +240,9 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 				+"&l="+encodeURIComponent(toHex($plantColor.val(),$plantAlpha.val())))
 		}
 	}
-	function loadFile(){
-		
-		if(filePicker.files.length>0){
-			
-			$track.remove();
-			console.log($track);
-			 
-			$track = $(document.createElement("audio"))
-			.attr("id","track")
-			.attr("controls","true")
-			.attr("loop","true")
-			.attr("autoplay","true")
-			.on("play",audioStart)
-			.on("pause",audioStop)
-			.appendTo("div#audioSettings")
-			.append(
-				$(document.createElement("source"))
-				.attr("src",URL.createObjectURL(filePicker.files[0]))
-				.attr("type",filePicker.files[0].type)
-			);
-			
-			sfx.createMediaElementSource(track).connect(analyser);
-			analyser.connect(sfx.destination);
-		}
-	}
 	
-	
-	
+	$(AudioPlayer).on("play",audioStart)
+	$(AudioPlayer).on("pause",audioStop);
 
 	function audioStart(e){
 		looping=true;
@@ -278,17 +257,11 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 	}
 
 	function redraw(){
-		analyser.getByteTimeDomainData(timeDomainData);
-		analyser.getByteFrequencyData(frequencyData);
+		AudioPlayer.analyse();
 		LSystem.clearScreen($clearColor.val(),$clearAlpha.val());
-		
 		LSystem.draw(data);
 	}
 	
-	$("#canvas2d").on("contextmenu",function(e){
-		LSystem.setCenter(e.clientX,e.clientY);
-		redraw();
-		e.originalEvent.preventDefault();
-	});
+	
 	
 });

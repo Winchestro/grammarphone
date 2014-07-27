@@ -25,6 +25,7 @@ define(function LSystem(){
 		clearScreen:clearScreen,
 		setRule:setRule,
 		setCenter:setCenter,
+		moveCenter:moveCenter,
 		setSize:setSize,
 		setAngle:setAngle
 	};
@@ -62,8 +63,12 @@ define(function LSystem(){
 		startPos[0]=x;
 		startPos[1]=y;
 	}
+	function moveCenter(x,y){
+		startPos[0]+=x;
+		startPos[1]+=y;
+	}
 	function setSize(n){
-		size=1<<n;
+		size=n*Math.pow(1.2,n);
 	}
 	function setAngle(n){
 		angleL = n/360*Math.PI*2;
