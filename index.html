@@ -4,7 +4,8 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" type="text/css" href="demo.css?cachekiller">
+		<link rel="stylesheet" type="text/css" href="demo.css">
+		<link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAGDSURBVCjPVZC9S1thFMZ/533f3HvxJmISImraFFqwIhRpias6FdQiLSWFQJdCO5SW4n/gXBAHJ5dO/gMKluLg5iTapSBKBxH8GGJJaHqLubl53w5JQc9whvN8nIdHuDnDzGGI2aL2/2QAmMDx03s1/3TypUq1480H+8s0biqrVJgvNvecc879de9i9SFzywEg9MKIRRQxv1JBRt8iCMAjRnnMfU45Z2e8MdB9okqkK4WPIkQ68lmgyAJjxM8pd7V6iavXz6oHG50tcuXyD72G8IUzX5fiXVV3qAweITKr+o9W318aVkg4Ik8wIy8EMJ+pXZwnhWozaXw79j9xhxoOhe3lE+BesF146HWitvOtGAYQ6jRobds3XGogsaO23K9Ck5YMfQhtfuORG2l9Tw7NEM3ZbAXqaAwBij9EBBRRfc238tWkiZ4U8j416sRcI4Tk8dB0IAXmZGpwWoAcuV53gsVy3W0Pk10fuis4hDYGEFp0AFDdrUtGImIEsCiSHuywAPwDYjB4OBAMtzcAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTQtMDUtMjRUMTc6MjU6NTcrMDI6MDBhKPD/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE0LTA1LTI0VDE3OjI1OjU3KzAyOjAwEHVIQwAAAABJRU5ErkJggg==">
 	</head>
 	<body>
 		
@@ -14,7 +15,7 @@
 				<div class="ui row head">
 					<input id="LSInput" type="text" placeholder="enter rule" value="I=I[+IO]I[-IO][IO]"/>
 					
-					<button id="btnExplore">
+					<button id="btnGallery">
 						<svg width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
 							<path d="M 64.00,128.00l0.00,320.00 l 448.00,0.00 L 512.00,128.00 L 64.00,128.00 z M 480.00,394.667L 416.00,288.00l-72.533,60.444L 288.00,256.00L 96.00,416.00L 96.00,160.00 l 384.00,0.00 L 480.00,394.667 zM 128.00,240.00A48.00,48.00 7560.00 1,0 224.00,240A48.00,48.00 7560.00 1,0 128.00,240zM 448.00,64.00L0.00,64.00L0.00,384.00L 32.00,384.00L 32.00,96.00L 448.00,96.00 z" >
 							</path>
@@ -72,8 +73,10 @@
 						</div>
 					</div>
 				</div>
+				
 				<div id="tabKeys" style="display:none" class="ui row tab">
 					<div class="options container">
+						
 						<div class="ui group">
 							<span>Symbol Bindings</span>
 						</div>
@@ -135,8 +138,8 @@
 							<div class="ui group">
 								<span label="Use frequency data">Use Frequency Data</span>
 								<input id="VisFrequency" type="radio" name="Vis" value="frequencyData">
-								
 							</div>
+							
 							<div class="ui group">
 								<span>Smooth</span>
 								<span id="LSSmoothAmount"></span>
@@ -144,7 +147,10 @@
 								
 							</div>
 							<div class="ui group">
-								<input id="filePicker" type="file"/>
+								<input id="filePicker" multiple type="file"/>
+							</div>
+							<div class="playlist">
+
 							</div>
 							<div id="audioSettings" class="ui group">
 						
@@ -155,9 +161,19 @@
 							</div>
 					</div>
 				</div>
+				<div id="tabGallery" style="display:none" class="ui row tab">
+					<div class="option container">
+						<span>Gallery</span>
+						<div class="gallery post">
+
+						<div>
+					</div>
+				</div>
 			</form>
 			
 		</div>
-		<script src="demo.js"></script>
+		
+		<script data-main="scripts/demo.js" src="scripts/require.js"></script>
+		
 	</body>
 </html>
