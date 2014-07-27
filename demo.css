@@ -12,13 +12,37 @@ body{
 } 
 button{
 	border-radius:5px;
-	background:white;
+	background: white;
 	fill: #212226;
 	border:none;
 	transition: 100ms;
-	margin:2px 0px 2px 6px;
+	/* z-index: 3; */
+	outline: transparent;
+}
+button.tab{
+	
 	min-width:32px;
 	min-height:32px;
+	box-shadow: .0em -.25em 1.5em rgb(0, 0, 0);
+	margin:2px 0px 2px 6px;
+	z-index: 1;
+}
+button.playlist{
+	
+}
+button.remove{
+	background:none;
+	width:26px;
+	padding:0px;
+}
+button.remove>svg{
+	fill:rgba(0,0,0,.25);
+	transition:250ms;
+	cursor:pointer;
+}
+button.remove>svg:hover{
+	fill:rgba(210,20,16,.75);
+	
 }
 span{
     /* margin-right: auto; */
@@ -37,11 +61,19 @@ input{
 	z-index:1;
 }
 audio{
-	width: 240px;
+	width: 292px;
+}
+svg{
+	width:20px;
+	height:20px;
+	
+	/* fill: #222; */
 }
 #filePicker{
 	cursor: pointer;
 	width: auto;
+	margin-right: auto;
+	margin-left: 0px;
 }
 input[type="text"]{
 	font-family: consolas,monospace;
@@ -53,6 +85,8 @@ input[type="text"]{
 	font-size: 22px;
 	padding: 0px 8px;
 	border: none;
+	background: white;
+	box-shadow: .0em -.25em 1.5em rgb(0, 0, 0);
 }
 
 .row{
@@ -62,17 +96,25 @@ input[type="text"]{
 .row.header{
 	
 }
+.options.container{
+	/* background: rgb(244, 244, 244); */
+	
+	/* background: white; */
+}
 svg{
-	fill: #222;	
+	/* fill: #222; */	
 }
 .row.tab{
 	border-radius:5px;
-	background:white;
-	color:black;
+	background: white;
+	color: #222;
+	box-shadow: .75em .25em 1.5em black;
+	box-shadow: .;
 	position:absolute;
 	top:48px;
 	right:10px;
 	padding:4px;
+	z-index: 2;
 }
 .ui.group{
 	/* flex-direction: column; */
@@ -88,8 +130,9 @@ svg{
 	/* background: #333030; */
 	/* box-shadow: 0em 0em 1.5em black; */
 	/* height: 128px; */
-	opacity: 0.6;
-	color: #DDD;
+	opacity: 0.5;
+	/* -webkit-filter: blur(1px); */
+	/* color: #BABABA; */
 	padding: 8px 10px 8px;
 	
 	/* pointer-events: none; */
@@ -98,6 +141,7 @@ svg{
 	background: #333;
 	/* text-shadow: 0em 0em .5em white; */
 	color:white;
+	/* opacity: 1.0; */
 }
 input[type="file"]::-webkit-file-upload-button{
 	-webkit-appearance:none;
@@ -127,4 +171,45 @@ div.ui.group>input[type="text"]{
 
 #plantAlpha, #clearAlpha{
 	margin-left: 4px;
+}
+.playlist{
+	
+}
+.playlist.container{
+    width: 300px;
+	
+    max-height: 300px;
+    overflow-y: auto;
+    border-radius: 5px;
+    background: #B5B5B5;
+    /* padding: 4px; */
+}
+.playlist.entry{
+    /* width: 120px; */
+	
+    /* max-width: 120px; */
+    /* overflow: hidden; */
+    /* height: 12px; */
+    display: flex;
+}
+.playlist.entry>p{
+	width: 100%;
+	background: rgba(255, 255, 255, 0.75);
+	transition:100ms;
+	color: #222;
+	font-size: 16px;
+	font-weight: bold;
+	overflow: hidden;
+	max-width: 75%;
+	max-height: 17px;
+	border-radius: 5px;
+	cursor: pointer;
+	cursor: p;
+	border-radius: 5;
+	margin: 6px;
+	padding: 4px 8px;
+}
+.playlist.entry>p:hover{
+	background: rgba(0, 0, 0, 0.75);
+	color: white;
 }
