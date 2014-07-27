@@ -240,10 +240,10 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 		
 		if(filePicker.files.length>0){
 			
-			track.remove();
-			
-			
-			var track = $(document.createElement("audio"))
+			$track.remove();
+			console.log($track);
+			 
+			$track = $(document.createElement("audio"))
 			.attr("id","track")
 			.attr("controls","true")
 			.attr("loop","true")
@@ -257,7 +257,7 @@ define(["lsystem","url","jquery"],function demo(LSystem,query,$){
 				.attr("type",filePicker.files[0].type)
 			);
 			
-			sfx.createMediaElementSource(track.context).connect(analyser);
+			sfx.createMediaElementSource(track).connect(analyser);
 			analyser.connect(sfx.destination);
 		}
 	}
