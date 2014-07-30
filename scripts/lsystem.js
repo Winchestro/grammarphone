@@ -106,7 +106,7 @@ define(function LSystem(){
 					debugDrawCalls++;
 					//ctx.rotate((data[(i+v)%data.length]/128-1)*angleL);
 					ctx.lineWidth=20*cursor.stack[cursor.i].s;
-					this.rotate((data[(i+v)%data.length]/128-1)*angleL)
+					this.rotate((data[(i+v)%data.length]/128-1)*angleL);
 					ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
 					this.translate((data[i%data.length]/256*size/2000));
 					ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
@@ -135,7 +135,8 @@ define(function LSystem(){
 		},
 		h:function(i,data){
 			debugDrawCalls++;
-			ctx.moveTo((data[i%data.length]/256*size/2000)+size/2000,0);
+			this.translate((data[i%data.length]/256*size/2000)+size/2000);
+			//ctx.moveTo((data[i%data.length]/256*size/2000)+size/2000,0);
 			//ctx.translate((data[i%data.length]/256*size/2000)+size/2000,0);
 		},
 
