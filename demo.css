@@ -9,13 +9,14 @@ body{
 	-moz-user-select:none;
 	font-family: Arial, sans-serif;
 	font-size:12px;
-} 
+}
 button{
 	border-radius:5px;
 	background: white;
 	fill: #212226;
 	border:none;
-	transition: 100ms;
+	/* transition: 100ms; */
+	-webkit-transition: 100ms;
 	/* z-index: 3; */
 	outline: transparent;
 }
@@ -61,7 +62,8 @@ input{
 	z-index:1;
 }
 audio{
-	width: 292px;
+	/* width: 292px; */
+	/* width: 100%; */
 }
 svg{
 	width:20px;
@@ -80,12 +82,13 @@ input[type="text"]{
 	font-size: 18px;
 	font-weight: bolder;
 }
+
 #LSInput{
 	width: 100%;
 	font-size: 22px;
 	padding: 0px 8px;
 	border: none;
-	background: white;
+	background: rgba(255, 255, 255, 0.8);
 	box-shadow: .0em -.25em 1.5em rgb(0, 0, 0);
 }
 
@@ -130,7 +133,7 @@ svg{
 	/* background: #333030; */
 	/* box-shadow: 0em 0em 1.5em black; */
 	/* height: 128px; */
-	opacity: 0.5;
+	/* opacity: 0.65; */
 	/* -webkit-filter: blur(1px); */
 	/* color: #BABABA; */
 	padding: 8px 10px 8px;
@@ -158,6 +161,7 @@ input[type="color"] {
 }
 .pressed{
     transform: translate(0px,12px);
+    -webkit-transform: translate(0px,12px);
 }
 div.ui.group>input{
 	margin-left:auto;
@@ -167,6 +171,8 @@ div.ui.group>input[type="text"]{
 	border:none;
 	background:#DDD;
 	
+	width: 160px;
+	width: 2;
 }
 
 #plantAlpha, #clearAlpha{
@@ -201,7 +207,7 @@ div.ui.group>input[type="text"]{
 	font-weight: bold;
 	overflow: hidden;
 	max-width: 75%;
-	max-height: 17px;
+	max-height: 16px;
 	border-radius: 5px;
 	cursor: pointer;
 	cursor: p;
@@ -212,4 +218,11 @@ div.ui.group>input[type="text"]{
 .playlist.entry>p:hover{
 	background: rgba(0, 0, 0, 0.75);
 	color: white;
+}
+
+@media (max-width:30cm){
+	
+	input[type="range"]{
+		width:300px;
+	}
 }

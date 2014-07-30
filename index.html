@@ -13,7 +13,7 @@
 		<div class="ui container">
 			<form id="LSform">
 				<div class="ui row head">
-					<input id="LSInput" type="text" placeholder="enter rule" value="I=I[+IO]I[-IO][IO]"/>
+					<input id="LSInput" type="text" autocomplete="off" placeholder="enter rule" value="I=S S=i>[+SO][-SO]"/>
 					
 					<button id="btnGallery" class="tab">
 						<svg width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
@@ -44,20 +44,18 @@
 					<div class="options container">
 						<div class="ui group">
 							<span>Fadeout</span>
-							<input id="clearColor" type="color" value="#0F4499"/>
-							<input id="clearAlpha" type="range" min="0.01" step="0.01" max="1.00"value="1.00"/>
+							<input tabindex="6" id="clearColor" type="color" value="#08103b"/>
+							<input tabindex="7" id="clearAlpha" type="range" min="0.01" step="0.01" max="1.00"value="1.00"/>
 						</div>
 						<div class="ui group">
 							<span>Line</span>
-							
-							
-							<input id="plantColor" type="color" value="#FFFFFF"/>
-							<input id="plantAlpha" type="range" min="0.01" step="0.01" max="1.00"value="0.50"/>
+							<input tabindex="8" id="plantColor" type="color" value="#000000"/>
+							<input tabindex="9" id="plantAlpha" type="range" min="0.01" step="0.01" max="1.00"value="0.50"/>
 						</div>
 						<div class="ui group">
 							<span>Iterations </span>
 							<span id="LSIterName"></span>
-							<input id="LSIter" type="range" min="1" max="10" value="4"/>
+							<input tabindex="10" id="LSIter" type="range" min="0" max="10" value="4"/>
 						</div>
 						<div class="ui group">
 							<span>Zoom </span>
@@ -118,11 +116,11 @@
 						</div>
 						<div class="ui group">
 							<span>Push Transform</span>
-							<input id="keysPush" type="text" readonly value="[ 7 q">
+							<input id="keysPush" type="text" readonly value="[ 7 q ( {">
 						</div>
 						<div class="ui group">
 							<span>Pop Transform</span>
-							<input id="keysPop" type="text" readonly value="] 9 p">
+							<input id="keysPop" type="text" readonly value="] 9 p ) }">
 						</div>
 					</div>
 				</div>

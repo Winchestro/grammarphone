@@ -24,14 +24,14 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 	var data;
 	
 	query("http://www.winchestro.com",[
-		["rule",	"I=I[+IO]I[-IO][IO]",	function(s){return atob(decodeURIComponent(s))}],
+		["rule",	"I=S S=i>[+SO][-SO]",	function(s){return atob(decodeURIComponent(s))}],
 		["zoom",	47,						function(s){return parseInt(s)}],
 		["angle",	30,						function(s){return parseInt(s)}],
-		["td",		true,					function(s){return JSON.parse(s)}],
+		["td",		false,					function(s){return JSON.parse(s)}],
 		["smooth",	0.8,					function(s){return parseFloat(s)}],
-		["iter",	4,						function(s){return parseInt(s)}],
-		["fade",	"#0F4499FF",			function(s){return decodeURIComponent(s)}],
-		["plant",	"#FFFFFF88",			function(s){return decodeURIComponent(s)}]
+		["iter",	9,						function(s){return parseInt(s)}],
+		["fade",	"#08103bDD",			function(s){return decodeURIComponent(s)}],
+		["plant",	"#00000088",			function(s){return decodeURIComponent(s)}]
 	],function(){
 		
 		window.w=query;
@@ -87,18 +87,50 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 		redraw();
 	})
 	.click(function(e){
-		console.log(typeof e.which);
+		//console.log(e.which);
 		if(e.which===2){
-			LSystem.setCenter(window.innerWidth/2,window.innerHeight/2)
+			LSystem.setCenter(window.innerWidth/2,window.innerHeight*.75);
+			vPos[0]=canvas2d.width/2;
+			vPos[1]=canvas2d.height*.75;
 			redraw();
 		}
-	})
+
+	});
+/*
 	.on("contextmenu",function(e){
 		e.originalEvent.preventDefault();
-		LSystem.moveCenter((window.innerWidth/2-e.clientX)/3,(window.innerHeight/2-e.clientY)/3);
+		LSystem.setCenter((window.innerWidth/2-e.clientX)/2,(window.innerHeight/2-e.clientY)/2);
 		redraw();
 		
 	});
+*/	
+	document.getElementById("canvas2d").addEventListener("mousedown",dragHandler);
+	var vPos = [canvas2d.width/2,canvas2d.height*.75];
+	function dragHandler(e){
+		var startPos = [e.x,e.y];
+		
+		canvas2d.removeEventListener("mousedown",dragHandler)
+		canvas2d.addEventListener("mousemove",dragMoveHandler);
+		window.addEventListener("mouseup",dragStopHandler);
+
+		function dragMoveHandler(e){
+			//console.log(e);
+			//100 100 > 200,200   500 500 > 600 600
+			
+			LSystem.setCenter(e.x-startPos[0]+vPos[0],e.y-startPos[1]+vPos[1]);
+			
+			redraw();
+		}
+		function dragStopHandler(e){
+			canvas2d.removeEventListener("mousemove",dragMoveHandler);
+			window.removeEventListener("mouseup",dragStopHandler);
+			canvas2d.addEventListener("mousedown",dragHandler);
+			vPos[0]+=(e.x-startPos[0]);
+			vPos[1]+=(e.y-startPos[1]);
+
+		}
+	};
+	
 
 	//$("#LSInput").on("focus",function(e){e.preventDefault()});
 	
