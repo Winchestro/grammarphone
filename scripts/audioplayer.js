@@ -7,10 +7,7 @@ define(["jquery"],function AudioPlayer($){
 	$root.append($playlist).append($player);
 
 	var URL = window.URL || window.webkitURL;
-	var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
-    var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
-    var dbVersion = 1;
-    var dbRequest = indexedDB.open("audioPlayerFiles", dbVersion);
+	DB();
 
 	var AudioContext = window.AudioContext||window.webkitAudioContext;
 	var sfx = new  AudioContext;
@@ -44,7 +41,21 @@ define(["jquery"],function AudioPlayer($){
 	AudioPlayer.prototype.frequencyData=frequencyData;
 	AudioPlayer.prototype.setSmoothing=setSmoothing;
 	return AudioPlayer.prototype;
-
+	function DB(){
+		var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
+	    var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
+	    var dbVersion = 1;
+	    var dbRequest = indexedDB.open("audioPlayerFiles", dbVersion);
+	    dbRequest.onsuccess = function (event) {
+			//console.log("Success creating/accessing IndexedDB database");
+			var db = dbRequest.result;
+			//console.dir(db);
+			//db.createObjectStore("audioPlayerFiles");
+			db.onerror = function (event) {
+				//console.log("Error creating/accessing IndexedDB database");
+			};
+		}
+	}
 	function Controls(){
 		var $playButton = $(document.createElement("button"))
 		.html('<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><path d="M 256.00,0.00C 114.615,0.00,0.00,114.615,0.00,256.00s 114.615,256.00, 256.00,256.00s 256.00-114.615, 256.00-256.00S 397.385,0.00, 256.00,0.00z M 256.00,464.00 c-114.875,0.00-208.00-93.125-208.00-208.00S 141.125,48.00, 256.00,48.00s 208.00,93.125, 208.00,208.00S 370.875,464.00, 256.00,464.00zM 192.00,144.00L 384.00,256.00L 192.00,368.00 z" ></path></svg>')

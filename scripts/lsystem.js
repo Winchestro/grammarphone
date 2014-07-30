@@ -3,22 +3,171 @@ define(function LSystem(){
 	window.addEventListener("resize",scaleFS.bind(canvas2d),false);
 	scaleFS.apply(canvas2d,[]);
 
-	
-
+	var debugDrawTime=0;
+	var debugDrawCalls=0;
+	var debugFrames = [];
+	var cursor = {
+		i:0,
+		stack:[{x:0,y:0,a:0,s:0}]
+	}
 	
 	var ctx = canvas2d.getContext("2d");
 		ctx.lineCap = "round";
-	var size,angleL,angleR,sequence;
+	var size,angleL,angleR,sequence,compiledCode =[];
 
-	
 	var startPos = [canvas2d.width/2,canvas2d.height*.75];
-	var startAngle= Math.PI*1.5;
-	
+	//var startAngle= -Math.PI*1.5;
+	var startAngle= Math.PI;
 	var scaleUP = .75;
 	var scaleDOWN = .75;
 	var currentScale = 1.;
 	var axiom = "I";
 
+	var turtle = {
+		pushStack:function(){
+			if(cursor.i+1===cursor.stack.length)
+				cursor.stack[cursor.i+1]={x:0,y:0,a:0,s:0};
+			cursor.stack[cursor.i+1].x=cursor.stack[cursor.i].x;
+			cursor.stack[cursor.i+1].y=cursor.stack[cursor.i].y;
+			cursor.stack[cursor.i+1].a=cursor.stack[cursor.i].a;
+			cursor.stack[cursor.i+1].s=cursor.stack[cursor.i].s;
+			cursor.i++;
+		},
+		popStack:function(){
+			if(cursor.i>0)
+				cursor.i--;
+		},
+		translate:function(x){
+			//console.log("stack x,y",cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+			//console.log("sin cos",Math.sin(cursor.stack[cursor.i].x),Math.cos(cursor.stack[cursor.i].y))
+			//console.log("angle",cursor.stack[cursor.i].a)
+			//console.log("cos angle",Math.cos(cursor.stack[cursor.i].a))
+			//console.log("x*cos angle",x*Math.cos(cursor.stack[cursor.i].a))
+			//console.log(cursor.stack[cursor.i].y);
+			cursor.stack[cursor.i].x+=x
+			*Math.sin
+			(cursor.stack[cursor.i].a)
+			*cursor.stack[cursor.i].s;
+			cursor.stack[cursor.i].y+=(x*Math.cos(cursor.stack[cursor.i].a)*cursor.stack[cursor.i].s);
+			//console.log(cursor.stack[cursor.i].y);
+			//console.log("cursor",cursor.i)
+			//console.log("x,y",x,y);
+			
+
+		},
+		rotate:function(a){
+			cursor.stack[cursor.i].a+=a;
+		},
+		scale:function(s){
+			cursor.stack[cursor.i].s*=s;
+		},
+		p:function(){
+			debugDrawCalls++;
+			//ctx.restore();
+			
+			this.popStack();
+		},
+		
+		q:function(){
+			debugDrawCalls++;
+			//ctx.save();
+			
+			this.pushStack();
+		},
+		b:function(){
+			debugDrawCalls++;
+			//ctx.rotate(angleR);
+
+			this.rotate(angleR);
+		},
+		d:function(){
+			debugDrawCalls++;
+			//ctx.rotate(angleL);
+
+			this.rotate(angleL);
+		},
+		u:function(){
+			debugDrawCalls++;
+			//ctx.scale(1/scaleUP,1/scaleUP);
+
+			this.scale(1/scaleUP);
+		},
+		n:function(){
+			debugDrawCalls++;
+			//ctx.scale(1*scaleDOWN,1*scaleDOWN);
+			
+			this.scale(1*scaleDOWN);
+		},
+		s:function(i,data){
+			if(data){
+			//ctx.beginPath();
+				var n = (Math.floor(data[i%data.length]/256*10))
+				for(var v = 0; v<n; v++){
+					debugDrawCalls++;
+					//ctx.rotate((data[(i+v)%data.length]/128-1)*angleL);
+					ctx.lineWidth=20*cursor.stack[cursor.i].s;
+					this.rotate((data[(i+v)%data.length]/128-1)*angleL)
+					ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+					this.translate((data[i%data.length]/256*size/2000));
+					ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+					//ctx.translate((data[(i+v)%data.length]/256*size/2000)+size/2000);
+				}
+			}
+			ctx.stroke();
+		},
+		w:function(i,data){
+			//ctx.beginPath();
+			if(data){
+				var n = (Math.floor(data[i%data.length]/256*10))
+				for(var v = 0; v<n; v++){
+					debugDrawCalls++;
+					if(data[(i+v)%data.length]<96){
+						//ctx.rotate(angleL);
+					}else if(data[(i+v)%data.length]>160){
+						//ctx.rotate(angleR);
+					}
+					ctx.moveTo(size/2000,0);
+					ctx.lineTo(0,0);
+					//ctx.translate(size/2000,0);
+				}
+			}
+			//ctx.stroke();
+		},
+		h:function(i,data){
+			debugDrawCalls++;
+			ctx.moveTo((data[i%data.length]/256*size/2000)+size/2000,0);
+			//ctx.translate((data[i%data.length]/256*size/2000)+size/2000,0);
+		},
+
+		l:function(i,data){
+			debugDrawCalls++;
+			ctx.beginPath();
+			ctx.lineWidth=20*cursor.stack[cursor.i].s;
+			ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+			this.translate((data[i%data.length]/256*size/2000)+size/2000);
+			ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+			//ctx.moveTo(0,0)
+			//ctx.translate((data[i%data.length]/256*size/2000)+size/2000,0);
+			ctx.stroke();
+			
+			//ctx.stroke();
+		},
+		o:function(i,data){
+			if(data){
+				debugDrawCalls++;
+				ctx.beginPath()
+				ctx.fillStyle="hsl("+(data[i%data.length]*1.75)+",100%,50%)";
+				//ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+				ctx.arc(
+					cursor.stack[cursor.i].x,
+					cursor.stack[cursor.i].y,
+					Math.abs(.285*data[i%data.length]/256*size/2000)*cursor.stack[cursor.i].s,
+					0,Math.PI*2);
+				ctx.fill();
+				//ctx.stroke();
+			}
+		}
+	}
 	return {
 		init:init,
 		draw:draw,
@@ -36,7 +185,7 @@ define(function LSystem(){
 	};
 	function setRule(rule,iterations){
 		sequence=axiom;
-
+		debugDrawTime = debugTimerStart();
 		var r = rule.split(" ");
 		r.forEach(function(e,i){
 			var rA = e.split("=")[0];
@@ -44,6 +193,7 @@ define(function LSystem(){
 			r[i] = [rA,rB];
 		});
 		rewrite(iterations);
+		compile();
 		function rewrite(n){
 			if(n>0){
 				r.forEach(function(e,i){
@@ -54,9 +204,106 @@ define(function LSystem(){
 				});
 				return rewrite(n-1);
 			}else{
+				//console.log("Rewritetime:\t"+debugTimerEnd(debugDrawTime));
 				return sequence;
 			}
 		}
+		//
+		function compile(){
+			debugDrawTime = debugTimerStart();
+			compiledCode.length=0;
+			sequence=sequence.split("");
+			for(var i = 0; i<sequence.length; i++){
+				switch(sequence[i]){
+					case "i":
+					case "I":
+					case "f":
+					case "F":
+					case "L":
+					case "1":
+					case "l":
+						compiledCode.push("l");
+						break;
+
+					case "4":
+					case "d":
+					case "+":
+						compiledCode.push("d");
+						break;
+
+					case "-":
+					case "6":
+					case "b":
+						compiledCode.push("b");
+						break;
+
+					case "[":
+					case "(":
+					case "{":
+					case "7":
+					case "q":
+						compiledCode.push("q");
+						break;
+
+					case "]":
+					case ")":
+					case "}":
+					case "9":
+					case "p":
+						compiledCode.push("p");
+						break;
+
+					case "O":
+					case "*":
+					case "o":
+						compiledCode.push("o");
+						break;
+
+					case "H":
+					case "0":
+					case "h":
+						compiledCode.push("h");
+						break;
+
+					case "S":
+					case "3":
+					case "s":
+						compiledCode.push("s");
+						break;
+
+					case "W":
+					case "5":
+					case "w":
+						compiledCode.push("w");
+						break;
+
+					case ">":
+					case "2":
+					case "n":
+						compiledCode.push("n");
+						break;
+
+					case "u":
+					case "<":
+					case "8":
+						compiledCode.push("u");
+						break;
+					
+					
+					
+					default:
+						break;
+				}
+			}
+			
+			//console.log("Compiletime:\t"+debugTimerEnd(debugDrawTime));
+			//console.dir(sequence);
+			//console.log("Sequence length "+sequence.length);
+			//console.log("Compiled length "+compiledCode.length);
+			//console.dir(compiledCode);
+			//sequence.length=0;
+		}
+
 	}
 
 	function setCenter(x,y){
@@ -98,138 +345,86 @@ define(function LSystem(){
 		
 		
 	}
+	function debugTimerStart(){
+		return Date.now();
+	}
+	function debugTimerEnd(n){
+		return Date.now()-n;
+	}
 	function draw(data){
+		//console.log(cursor.stack[0]);
+		//console.log(cursor.stack[1]);
+		cursor.stack[0].x=startPos[0];
+		cursor.stack[0].y=startPos[1];
+		cursor.stack[0].a=startAngle;
+		cursor.stack[0].s=1;
+		cursor.i=0;
+		//turtle.translate(startPos[0],startPos[1]);
+		//turtle.rotate(startAngle);
+
+		//console.log(cursor);
+		//console.time("drawTime")
+		//debugDrawTime = debugTimerStart();
+		debugDrawCalls=0;
 		//clear(clearColor);
 		//if(!data){return}
-		ctx.setTransform(1,0,0,1,0,0);
-		ctx.translate(startPos[0],startPos[1]);
-		ctx.rotate(startAngle);
+		//ctx.setTransform(1,0,0,1,0,0);
+		//ctx.translate(startPos[0],startPos[1]);
+		
+		//pos[0]=500;
+		//pos[1]=500;
+		//dir=0;
+		//ctx.rotate(startAngle);
 		ctx.lineWidth = size/10000;
-		
+		//ctx.lineWidth=1;
+		ctx.fillStyle = toRGBA(plantColor.value,plantAlpha.value);
 		ctx.strokeStyle = toRGBA(plantColor.value,plantAlpha.value);
+		for(var i = 0; i<compiledCode.length; i++){
+			if(compiledCode[i]){
+				//ctx.beginPath();
+				turtle[compiledCode[i]](i,data);
+				//ctx.stroke();
+				//ctx.fill();
+			}
+		}
 		
-		for(var i = 0; i<sequence.length; i++){
-			switch(sequence[i]){
+		//debugDrawTime = debugTimerEnd(debugDrawTime);
+		//debugFrames.push(debugDrawTime);
+		/*
+		ctx.fillStyle="white";
+		ctx.font = "26px consolas";
+		ctx.setTransform(1,0,0,1,0,0);
+		ctx.fillText(debugDrawTime+"ms",20,80);
+		ctx.fillText(((1000/debugDrawTime)>>0)+"FPS",20,110);
+		ctx.fillText(debugDrawCalls+" drawcalls",20,140);
+		*/
+		//console.timeEnd("drawTime")
 
-				case "i":Line();break;
-				case "I":Line();break;
-				case "f":Line();break;
-				case "F":Line();break;
-
-				case "L":Line();break;
-				case "O":Fruit();break;
-				case "H":Invisible();break;
-				case "S":Antenna();break;
-				case "W":Tentacle();break;
-				case "+":turnLeft();break;
-				case "-":turnRight();break;
-				case ">":scaleDown();break;
-				case "<":scaleUp();break;
-				case "[":pushStack();break;
-				case "]":popStack();break;
-
-				case "1":Line();break;
-				case "*":Fruit();break;
-				case "0":Invisible();break;
-				case "3":Antenna();break;
-				case "5":Tentacle();break;
-				case "4":turnLeft();break;
-				case "6":turnRight();break;
-				case "8":scaleUp();break;
-				case "2":scaleDown();break;
-				case "7":pushStack();break;
-				case "9":popStack();break;
-				
-				case "l":Line();break;
-				case "o":Fruit();break;
-				case "h":Invisible();break;
-				case "s":Antenna();break;
-				case "w":Tentacle();break;
-				case "b":turnLeft();break;
-				case "d":turnRight();break;
-				case "u":scaleUp();break;
-				case "n":scaleDown();break;
-				case "q":pushStack();break;
-				case "p":popStack();break;
-				
-				
-				default:break;
-			}
-		}
-		function popStack(){
-			ctx.restore();
-		}
-		function pushStack(){
-			ctx.save();
-		}
-		function turnRight(){
-			ctx.rotate(angleR);
-		}
-		function turnLeft(){
-			ctx.rotate(angleL);
-		}
-		function scaleUp(){
-			ctx.scale(1/scaleUP,1/scaleUP);
-		}
-		function scaleDown(){
-			ctx.scale(1*scaleDOWN,1*scaleDOWN);
-		}
-		function Antenna(){
-			var n = (Math.floor(data[i%data.length]/256*10))
-			Line(n,true);
-			
-			
-		}
-		function Tentacle(){
-			var n = (Math.floor(data[i%data.length]/256*10))
-			Line(n,true,true,false);
-		}
-		function Invisible(){
-			ctx.moveTo((data[(i)%data.length]/256*size/2000)+size/2000,0);
-			ctx.translate((data[(i)%data.length]/256*size/2000)+size/2000,0);
-		}
-
-		function Line(num,r,f,m){
-			if(typeof num === "undefined"){num = 1;}
-			if(typeof r === "undefined"){r = false;}
-			if(typeof f === "undefined"){f = false;}
-			if(typeof m === "undefined"){m = true;}
-			ctx.beginPath();
-			for(var v = 0; v<num; v++){
-				if(r){
-					if(f){
-						if(data[(i+v)%data.length]<96){
-							ctx.rotate(angleL);
-						}else if(data[(i+v)%data.length]>160){
-							ctx.rotate(angleR);
-						}
-					}else{
-						ctx.rotate((data[(i+v)%data.length]/128-1)*angleL);
-					}
-				}
-				//ctx.lineWidth = (data[(i+v)%data.length]/64+1)*size/20;
-				
-				if(m){
-
-					ctx.moveTo((data[(i+v)%data.length]/256*size/2000)+size/2000,0);
-					ctx.lineTo(0,0);
-					ctx.translate((data[(i+v)%data.length]/256*size/2000)+size/2000,0);
-				}else{
-					ctx.moveTo(size/2000,0);
-					ctx.lineTo(0,0);
-					ctx.translate(size/2000,0);
-				}
-			
-			}
-			ctx.stroke();
-		}
-		function Fruit(){
-			ctx.beginPath()
-			ctx.fillStyle="hsl("+(data[i%data.length]*1.75)+",100%,50%)";
-			ctx.arc(0,0,Math.abs(.385*data[i%data.length]/256*size/2000),0,Math.PI*2);
-			ctx.fill();
-		}
 		//ctx.restore();
 		//return sequence;
 	}
 });
+
+/*
+I=@ö!~ !=!ä!ö!ö!ä!
+drawTime: 6.000ms 
+31252 
+drawTime: 82.000ms 
+156252 
+drawTime: 85.000ms 
+781252 
+drawTime: 363.000ms 
+3906252 
+drawTime: 1244.000ms 
+
+
+drawTime: 37.000ms 
+31249 
+drawTime: 177.000ms
+156249
+drawTime: 601.000ms 
+781249 
+drawTime: 3001.000ms 
+3906249 
+drawTime: 14909.000ms
+*/
