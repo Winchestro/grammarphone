@@ -116,22 +116,25 @@ define(function LSystem(){
 			ctx.stroke();
 		},
 		w:function(i,data){
-			//ctx.beginPath();
+			ctx.beginPath();
 			if(data){
 				var n = (Math.floor(data[i%data.length]/256*10))
 				for(var v = 0; v<n; v++){
 					debugDrawCalls++;
 					if(data[(i+v)%data.length]<96){
+						this.rotate(angleL);
 						//ctx.rotate(angleL);
 					}else if(data[(i+v)%data.length]>160){
+						this.rotate(angleR);
 						//ctx.rotate(angleR);
 					}
-					ctx.moveTo(size/2000,0);
-					ctx.lineTo(0,0);
+					ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+					this.translate(size/2000,0);
+					ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
 					//ctx.translate(size/2000,0);
 				}
 			}
-			//ctx.stroke();
+			ctx.stroke();
 		},
 		h:function(i,data){
 			debugDrawCalls++;
@@ -143,7 +146,7 @@ define(function LSystem(){
 		l:function(i,data){
 			debugDrawCalls++;
 			ctx.beginPath();
-			ctx.lineWidth=20*cursor.stack[cursor.i].s;
+			ctx.lineWidth=size/8000*cursor.stack[cursor.i].s;
 			ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
 			this.translate((data[i%data.length]/256*size/2000)+size/2000);
 			ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
