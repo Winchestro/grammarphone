@@ -1,7 +1,7 @@
 define(function LSystem(){
 	var canvas2d = document.getElementById("canvas2d");
 	window.addEventListener("resize",scaleFS.bind(canvas2d),false);
-	scaleFS.apply(canvas2d,[]);
+	
 
 	var debugDrawTime=0;
 	var debugDrawCalls=0;
@@ -10,12 +10,16 @@ define(function LSystem(){
 		i:0,
 		stack:[{x:0,y:0,a:0,s:0}]
 	}
-	
-	var ctx = canvas2d.getContext("2d");
-		ctx.lineCap = "round";
-	var size,angleL,angleR,sequence,compiledCode =[];
+	var startPos = [window.innerWidth/2,window.innerHeight*.75];
+	var size,angleL,angleR,audioData,clearColor,sequence,compiledCode =[];
+	var compiler = new Worker("scripts/compiler.js");
 
-	var startPos = [canvas2d.width/2,canvas2d.height*.75];
+
+	var ctx = canvas2d.getContext("2d");
+		
+	
+
+	
 	//var startAngle= -Math.PI*1.5;
 	var startAngle= Math.PI;
 	var scaleUP = .75;
@@ -105,7 +109,7 @@ define(function LSystem(){
 				for(var v = 0; v<n; v++){
 					debugDrawCalls++;
 					//ctx.rotate((data[(i+v)%data.length]/128-1)*angleL);
-					ctx.lineWidth=20*cursor.stack[cursor.i].s;
+					ctx.lineWidth=size/8000*cursor.stack[cursor.i].s;
 					this.rotate((data[(i+v)%data.length]/128-1)*angleL);
 					ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
 					this.translate((data[i%data.length]/256*size/2000));
@@ -130,6 +134,7 @@ define(function LSystem(){
 					}
 					ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
 					this.translate(size/2000,0);
+					ctx.lineWidth=size/8000*cursor.stack[cursor.i].s;
 					ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
 					//ctx.translate(size/2000,0);
 				}
@@ -172,10 +177,15 @@ define(function LSystem(){
 			}
 		}
 	}
+
+	scaleFS.apply(canvas2d,[]);
+
 	return {
 		init:init,
 		draw:draw,
 		clearScreen:clearScreen,
+		setClearColor:setClearColor,
+		setData:setData,
 		setRule:setRule,
 		setCenter:setCenter,
 		moveCenter:moveCenter,
@@ -187,127 +197,28 @@ define(function LSystem(){
 		setSize(size);
 		setAngle(angle);
 	};
+
 	function setRule(rule,iterations){
-		sequence=axiom;
-		debugDrawTime = debugTimerStart();
-		var r = rule.split(" ");
-		r.forEach(function(e,i){
-			var rA = e.split("=")[0];
-			var rB = e.split("=")[1];
-			r[i] = [rA,rB];
-		});
-		rewrite(iterations);
-		compile();
-		function rewrite(n){
-			if(n>0){
-				r.forEach(function(e,i){
-					//console.log(e);
-					if(e[0]&&e[1]){
-						sequence=sequence.split(e[0]).join(e[1]);
-					};
-				});
-				return rewrite(n-1);
-			}else{
-				//console.log("Rewritetime:\t"+debugTimerEnd(debugDrawTime));
-				return sequence;
-			}
+		compiler.postMessage([rule,iterations]);
+		var timeout = setTimeout(timeoutHandler,5000);
+		compiler.addEventListener("message",successHandler,false);
+		function timeoutHandler(){
+			compiler.terminate();
+			compiler = new Worker("scripts/compiler.js");
+			console.log("compiler timed out");
 		}
-		//
-		function compile(){
-			debugDrawTime = debugTimerStart();
-			compiledCode.length=0;
-			sequence=sequence.split("");
-			for(var i = 0; i<sequence.length; i++){
-				switch(sequence[i]){
-					case "i":
-					case "I":
-					case "f":
-					case "F":
-					case "L":
-					case "1":
-					case "l":
-						compiledCode.push("l");
-						break;
-
-					case "4":
-					case "d":
-					case "+":
-						compiledCode.push("d");
-						break;
-
-					case "-":
-					case "6":
-					case "b":
-						compiledCode.push("b");
-						break;
-
-					case "[":
-					case "(":
-					case "{":
-					case "7":
-					case "q":
-						compiledCode.push("q");
-						break;
-
-					case "]":
-					case ")":
-					case "}":
-					case "9":
-					case "p":
-						compiledCode.push("p");
-						break;
-
-					case "O":
-					case "*":
-					case "o":
-						compiledCode.push("o");
-						break;
-
-					case "H":
-					case "0":
-					case "h":
-						compiledCode.push("h");
-						break;
-
-					case "S":
-					case "3":
-					case "s":
-						compiledCode.push("s");
-						break;
-
-					case "W":
-					case "5":
-					case "w":
-						compiledCode.push("w");
-						break;
-
-					case ">":
-					case "2":
-					case "n":
-						compiledCode.push("n");
-						break;
-
-					case "u":
-					case "<":
-					case "8":
-						compiledCode.push("u");
-						break;
-					
-					
-					
-					default:
-						break;
-				}
-			}
-			
-			//console.log("Compiletime:\t"+debugTimerEnd(debugDrawTime));
-			//console.dir(sequence);
-			//console.log("Sequence length "+sequence.length);
-			//console.log("Compiled length "+compiledCode.length);
-			//console.dir(compiledCode);
-			//sequence.length=0;
+		function successHandler(e){
+			compiler.removeEventListener("message",successHandler);
+			clearTimeout(timeout);
+			compiledCode=e.data;
+			//console.log(e.data.length);
+			compiler.onmessage=null;
+			clearScreen();
+			draw();		
 		}
-
+	}
+	function setData(_audioData){
+		audioData = _audioData;
 	}
 
 	function setCenter(x,y){
@@ -325,9 +236,12 @@ define(function LSystem(){
 		angleL = n/360*Math.PI*2;
 		angleR = -n/360*Math.PI*2;
 	}
-	function clearScreen(color,alpha){
+	function setClearColor(color,alpha){
+		clearColor = toRGBA(color,alpha);
+	}
+	function clearScreen(){
 		ctx.setTransform(1,0,0,1,0,0);
-		ctx.fillStyle = toRGBA(color,alpha);
+		ctx.fillStyle = clearColor;
 		ctx.fillRect(0,0,canvas2d.width,canvas2d.height);
 	}
 	function toRGBA(s,a){
@@ -338,13 +252,13 @@ define(function LSystem(){
 	}
 	function scaleFS(){
 		var dE = document.documentElement;
-		if(this.width<dE.clientWidth){
+
+		if(this.width<dE.clientWidth||this.height<dE.clientHeight){
 			this.width = dE.clientWidth;
 			this.style.width = dE.clientWidth+"px";
-		}
-		if(this.height<dE.clientHeight){
 			this.height = dE.clientHeight;
 			this.style.height = dE.clientHeight+"px";
+			draw();
 		}
 		
 		
@@ -355,7 +269,7 @@ define(function LSystem(){
 	function debugTimerEnd(n){
 		return Date.now()-n;
 	}
-	function draw(data){
+	function draw(){
 		//console.log(cursor.stack[0]);
 		//console.log(cursor.stack[1]);
 		cursor.stack[0].x=startPos[0];
@@ -383,13 +297,12 @@ define(function LSystem(){
 		//ctx.lineWidth=1;
 		ctx.fillStyle = toRGBA(plantColor.value,plantAlpha.value);
 		ctx.strokeStyle = toRGBA(plantColor.value,plantAlpha.value);
+		ctx.lineCap = "round";
 		for(var i = 0; i<compiledCode.length; i++){
-			if(compiledCode[i]){
 				//ctx.beginPath();
-				turtle[compiledCode[i]](i,data);
+				turtle[compiledCode[i]](i,audioData);
 				//ctx.stroke();
 				//ctx.fill();
-			}
 		}
 		
 		//debugDrawTime = debugTimerEnd(debugDrawTime);
