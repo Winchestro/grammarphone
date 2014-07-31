@@ -7,7 +7,7 @@ define(["jquery"],function AudioPlayer($){
 	$root.append($playlist).append($player);
 
 	var URL = window.URL || window.webkitURL;
-	DB();
+	//DB();
 
 	var AudioContext = window.AudioContext||window.webkitAudioContext;
 	var sfx = new  AudioContext;
@@ -127,9 +127,11 @@ define(["jquery"],function AudioPlayer($){
 				$(AudioPlayer.prototype).trigger(e);
 			})
 	}
-	function analyse(){	
-		analyser.getByteTimeDomainData(timeDomainData);
-		analyser.getByteFrequencyData(frequencyData);
+	function analyse(td){	
+		if(td)
+			analyser.getByteTimeDomainData(timeDomainData);
+		else
+			analyser.getByteFrequencyData(frequencyData);
 
 	}
 	/*

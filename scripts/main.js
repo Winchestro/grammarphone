@@ -2,7 +2,7 @@
 define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,AudioPlayer){
 	"use strict";
 	window.q=$;
-	
+
 	var $LSIter = $("#LSIter"), 
 		$LSSize = $("#LSSize"), 
 		$LSInput = $("#LSInput"),
@@ -19,10 +19,10 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 		$LSSmoothAmount = $("#LSSmoothAmount");
 		
 
-	
 	var looping;
 	var data;
-	
+	var twitterLoaded = false;
+
 	query("http://www.winchestro.com",[
 		["rule",	"I=S S=i>[+SO][-SO]",	function(s){return atob(decodeURIComponent(s))}],
 		["zoom",	47,						function(s){return parseInt(s)}],
@@ -51,6 +51,7 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 			query.zoom,
 			query.angle
 		);
+		LSystem.setClearColor(clearColor.value,clearAlpha.value);
 		redraw();
 	});
 	function updateInterface(){
@@ -73,8 +74,8 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 		
 	}
 	
-	
-	LSystem.init(query.rule,query.iter,query.zoom,query.angle);
+	//LSystem.setClearColor(clearColor.value,clearAlpha.value);
+	//LSystem.init(query.rule,query.iter,query.zoom,query.angle);
 	
 	
 	$(canvas2d)
@@ -105,16 +106,18 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 	});
 */	
 	document.getElementById("canvas2d").addEventListener("mousedown",dragHandler);
+	
 	var vPos = [canvas2d.width/2,canvas2d.height*.75];
 	function dragHandler(e){
 		var startPos = [e.x,e.y];
-		
+		//console.log(e);
+		$(canvas2d).css("cursor","move");
 		canvas2d.removeEventListener("mousedown",dragHandler)
 		canvas2d.addEventListener("mousemove",dragMoveHandler);
 		window.addEventListener("mouseup",dragStopHandler);
 
 		function dragMoveHandler(e){
-			//console.log(e);
+			
 			//100 100 > 200,200   500 500 > 600 600
 			
 			LSystem.setCenter(e.x-startPos[0]+vPos[0],e.y-startPos[1]+vPos[1]);
@@ -125,6 +128,7 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 			canvas2d.removeEventListener("mousemove",dragMoveHandler);
 			window.removeEventListener("mouseup",dragStopHandler);
 			canvas2d.addEventListener("mousedown",dragHandler);
+			$(canvas2d).css("cursor","pointer");
 			vPos[0]+=(e.x-startPos[0]);
 			vPos[1]+=(e.y-startPos[1]);
 
@@ -134,38 +138,88 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 
 	//$("#LSInput").on("focus",function(e){e.preventDefault()});
 	
-	$("#LSform").on("submit",function(e){e.preventDefault()})
-		.on("input",update);
+	$("#LSform")
+	.on("submit",function(e){e.preventDefault()})
+	.on("input",update)
+	;
 	
 	
 	$("#VisTimeDomain").on("change",update);
 	$("#VisFrequency").on("change",update);
-	$("#btnOptions").on("click",toggleHandler(btnOptions,[btnMusic,btnKeys,btnGallery],"tabOptions"));
-	$("#btnMusic").on("click",toggleHandler(btnMusic,[btnOptions,btnKeys,btnGallery],"tabMusic"));
-	$("#btnKeys").on("click",toggleHandler(btnKeys,[btnOptions,btnMusic,btnGallery],"tabKeys"));
-	$("#btnGallery").on("click",toggleHandler(btnGallery,[btnOptions,btnMusic,btnKeys],"tabGallery"));
-	function toggleHandler(self,others,selector){
-		self.toggled = false;
-		self.toggle = toggle;
-		var options = document.getElementById(selector);
+	$("#btnOptions").on("click",toggleHandler.call(btnOptions,tabOptions));
+	$("#btnMusic").on("click",toggleHandler.call(btnMusic,tabMusic));
+	$("#btnKeys").on("click",toggleHandler.call(btnKeys,tabKeys));
+	$("#btnGallery")
+	.on("click",toggleHandler.call(btnGallery,tabGallery))
+	.on("click",function(e){
+		if(!twitterLoaded){
+			var loading = loadingCircle();
+	
+			tabGallery.appendChild(loading);
+			/*load twitter on demand, moved out for debug*/
+			var twttr = window.twttr = (function (d, s, id) {
+	  			var t, js, fjs = d.getElementsByTagName(s)[0];
+	  			if (d.getElementById(id)) return;
+	  			js = d.createElement(s); js.id = id; js.src= "http://platform.twitter.com/widgets.js";
+	  			fjs.parentNode.insertBefore(js, fjs);
+	  			return window.twttr || (t = { _e: [], ready: function (f) { t._e.push(f) } });
+			}(document, "script", "twitter-wjs"));
+			twttr.ready(function(twttr){
+				/*<a class="twitter-timeline" href="https://twitter.com/Grammarphone/timelines/494782493229588482" data-widget-id="494782771546439680">Editor's Choice</a>*/
+				
+				var editorsChoice = $(document.createElement("a"))
+				.hide()
+				.appendTo(tabGallery)
+				.attr("class","twitter-timeline")
+				//.attr("href","https://twitter.com/Grammarphone/timelines/494782493229588482")
+				//.attr("data-widget-id","494782771546439680")
+				//.text("Editor's Choice")
+				;
+				//console.log(twttr);
+				twttr.widgets.createTimeline(
+					"494782771546439680",
+					editorsChoice[0],
+					{
+						width: 100,
+		    			height: 400,
+						chrome:"noheader nofooter noborders transparent noscrollbar",
+						listId:"494782493229588482",
+						listSlug:"Grammarphone"
+					}
+				).then(function(e){
+					//console.log(e);
+					$(e)
+					
+					;
+					loading.running = false;
+					loading.remove();
+					editorsChoice.show()
+				})
+			})
+			twitterLoaded = true;
+		}
+	})
+	;
+	
+	function toggleHandler(tab){
+		this.toggled = false;
+		this.toggle = toggle;
+		var self = this;
 		return toggle;
 		function toggle(e){
-			if(self.toggled){
-				hide(options);
-				unpressed(self).toggled = false;
+			if(this.toggled){
+				$(tab).hide();
+				unpressed(this).toggled = false;
 			}else{
-				unhide(options);
-				pressed(self).toggled = true;
-				others.forEach(function(e,i){
-					if(e.toggled){
+				$(tab).show();
+				pressed(this).toggled = true;
+				$("button.tab").each(function(i,e){
+					if(e.toggled && e !== self){
 						e.toggle();
 					}
 				});
 			}
-			function hide(e){
-				e.setAttribute("style","display:none;");
-				return e;
-			}
+
 			function pressed(e){
 				e.classList.add("pressed")
 				return e;
@@ -174,15 +228,61 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 				e.classList.remove("pressed")
 				return e;
 			}
-			function unhide(e){
-				e.setAttribute("style","");
-				return e;
-			}
+			
 		}
 	}
+	function loadingCircle(){
+		var canvas = document.createElement("canvas");
+	    canvas.width = 200;
+	    canvas.height = 200;
+	    canvas.style.background = "transparent";
+	    canvas.running = true;
+	    
+	    
+	    
 		
-	
-	redraw();
+		var ctx = canvas.getContext("2d");
+		    ctx.strokeStyle = "#444";
+		    ctx.lineWidth = .0;
+		
+		var frame = 0;
+		var randomness = 25;
+		var center = {x:canvas.width/2,y:canvas.height/2};
+		var dot = {
+		    averageSize:16,
+		    variation:5,
+		    amount:9,
+		    radius:canvas.width/4
+		}
+		var TWOPI = Math.PI*2;
+		var animation = {end:1000,speed:28,percent:0};
+		draw();
+		return canvas;
+		function draw(){
+			if(canvas.running) requestAnimationFrame(draw)
+		    animation.percent = frame/animation.end*animation.speed;
+		    ctx.fillStyle = "hsl("+frame+",50%,50%)";
+		    ctx.beginPath();
+		    ctx.arc(
+		        center.x+dot.radius*Math.sin(animation.percent*TWOPI),
+		        center.y+dot.radius*Math.cos(animation.percent*TWOPI),
+		        dot.averageSize+dot.variation*Math.sin(animation.percent*TWOPI*dot.amount),
+		        0,
+		        TWOPI);
+
+		    ctx.moveTo(
+		        center.x+Math.random()*randomness-randomness/2,
+		        center.y+Math.random()*randomness-randomness/2);
+		    ctx.lineTo(
+		        center.x+dot.radius*.65*Math.sin(animation.percent*TWOPI),
+		        center.y+dot.radius*.65*Math.cos(animation.percent*TWOPI)
+		    )
+		    
+		    ctx.fill();
+		    //ctx.stroke();
+		    frame++;
+		}
+	}
 
 	function update(e){
 		e=e.originalEvent;
@@ -198,6 +298,10 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 				$LSIterName.text(parseFloat($LSIter.val()));
 				LSystem.setRule($LSInput.val(),parseInt($LSIter.val()));
 				redraw();
+				break;
+			case clearColor:
+			case clearAlpha: 
+				LSystem.setClearColor($clearColor.val(),$clearAlpha.val());
 				break;
 			case VisTimeDomain:
 				data = AudioPlayer.timeDomainData;
@@ -228,7 +332,22 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 		}
 		updateHistory();
 	}
-
+	function addTwitter(){
+		
+		/*
+		!function(d,s,id){
+			var js,
+				fjs=d.getElementsByTagName(s)[0],
+				p=/^http:/.test(d.location)?'http':'https';
+			if(!d.getElementById(id)){
+				js=d.createElement(s);
+				js.id=id;
+				js.src=p+"://platform.twitter.com/widgets.js";
+				fjs.parentNode.insertBefore(js,fjs);
+			}
+		}(document,"script","twitter-wjs");
+		*/
+	}
 	
 	
 	function convert(url){
@@ -284,16 +403,19 @@ define(["lsystem","url","jquery","audioplayer"],function demo(LSystem,query,$,Au
 		looping=false;
 	}
 	function loop(){
-		looping&&requestAnimationFrame(loop);
+		if(looping)
+			requestAnimationFrame(loop);
 		redraw();
 	}
 
 	function redraw(){
-		AudioPlayer.analyse();
-		LSystem.clearScreen($clearColor.val(),$clearAlpha.val());
-		LSystem.draw(data);
+		AudioPlayer.analyse(VisTimeDomain.checked);
+		
+		LSystem.clearScreen();
+		LSystem.setData(data);
+		LSystem.draw();
 	}
 	
 	
-	
+	redraw();
 });
