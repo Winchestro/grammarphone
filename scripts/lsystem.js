@@ -104,7 +104,7 @@ define(function LSystem(){
 		},
 		s:function(i,data){
 			if(data){
-			//ctx.beginPath();
+			ctx.beginPath();
 				var n = (Math.floor(data[i%data.length]/256*10))
 				for(var v = 0; v<n; v++){
 					debugDrawCalls++;
