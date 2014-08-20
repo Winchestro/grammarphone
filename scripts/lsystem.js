@@ -1,24 +1,28 @@
-define(function LSystem(){
+define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	var canvas2d = document.getElementById("canvas2d");
 	window.addEventListener("resize",scaleFS.bind(canvas2d),false);
+	var params={
+		maxDrawTime:	2000,
+		maxLoopTime:	500,
+		compileTimeout: 1000
+	};
 	
+	var stackX=[];
+	var stackY=[];
+	var stackA=[];
+	var stackS=[];
+	var cursor=0;
 
-	var debugDrawTime=0;
-	var debugDrawCalls=0;
-	var debugFrames = [];
-	var cursor = {
-		i:0,
-		stack:[{x:0,y:0,a:0,s:0}]
-	}
 	var startPos = [window.innerWidth/2,window.innerHeight*.75];
-	var size,angleL,angleR,audioData,clearColor,sequence,compiledCode =[];
+	var size,angleL,angleR,audioData,clearColor,lineColor,drawTime,sequence,looping,usingTimeDomain,compiledCode =[];
 	var compiler = new Worker("scripts/compiler.js");
 
 
 	var ctx = canvas2d.getContext("2d");
 		
 	
-
+	$(AudioPlayer).on("play",audioStart)
+	$(AudioPlayer).on("pause",audioStop);
 	
 	//var startAngle= -Math.PI*1.5;
 	var startAngle= Math.PI;
@@ -29,17 +33,27 @@ define(function LSystem(){
 
 	var turtle = {
 		pushStack:function(){
+			/*
 			if(cursor.i+1===cursor.stack.length)
-				cursor.stack[cursor.i+1]={x:0,y:0,a:0,s:0};
+			cursor.stack[cursor.i+1]={x:0,y:0,a:0,s:0};
 			cursor.stack[cursor.i+1].x=cursor.stack[cursor.i].x;
 			cursor.stack[cursor.i+1].y=cursor.stack[cursor.i].y;
 			cursor.stack[cursor.i+1].a=cursor.stack[cursor.i].a;
 			cursor.stack[cursor.i+1].s=cursor.stack[cursor.i].s;
 			cursor.i++;
+			*/
+			
+			
+			stackX[cursor+1]=stackX[cursor];
+			stackY[cursor+1]=stackY[cursor];
+			stackA[cursor+1]=stackA[cursor];
+			stackS[cursor+1]=stackS[cursor];
+			cursor++;
+			
 		},
 		popStack:function(){
-			if(cursor.i>0)
-				cursor.i--;
+			if(cursor>0)
+				cursor--;
 		},
 		translate:function(x){
 			//console.log("stack x,y",cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
@@ -48,11 +62,14 @@ define(function LSystem(){
 			//console.log("cos angle",Math.cos(cursor.stack[cursor.i].a))
 			//console.log("x*cos angle",x*Math.cos(cursor.stack[cursor.i].a))
 			//console.log(cursor.stack[cursor.i].y);
-			cursor.stack[cursor.i].x+=x
-			*Math.sin
-			(cursor.stack[cursor.i].a)
-			*cursor.stack[cursor.i].s;
-			cursor.stack[cursor.i].y+=(x*Math.cos(cursor.stack[cursor.i].a)*cursor.stack[cursor.i].s);
+			stackX[cursor]+=x
+				*Math.sin
+				(stackA[cursor])
+				*stackS[cursor];
+			stackY[cursor]+=(x
+				*Math.cos
+				(stackA[cursor])
+				*stackS[cursor]);
 			//console.log(cursor.stack[cursor.i].y);
 			//console.log("cursor",cursor.i)
 			//console.log("x,y",x,y);
@@ -60,46 +77,28 @@ define(function LSystem(){
 
 		},
 		rotate:function(a){
-			cursor.stack[cursor.i].a+=a;
+			stackA[cursor]+=a;
 		},
 		scale:function(s){
-			cursor.stack[cursor.i].s*=s;
+			stackS[cursor]*=s;
 		},
 		p:function(){
-			debugDrawCalls++;
-			//ctx.restore();
-			
 			this.popStack();
 		},
 		
 		q:function(){
-			debugDrawCalls++;
-			//ctx.save();
-			
 			this.pushStack();
 		},
 		b:function(){
-			debugDrawCalls++;
-			//ctx.rotate(angleR);
-
 			this.rotate(angleR);
 		},
 		d:function(){
-			debugDrawCalls++;
-			//ctx.rotate(angleL);
-
 			this.rotate(angleL);
 		},
 		u:function(){
-			debugDrawCalls++;
-			//ctx.scale(1/scaleUP,1/scaleUP);
-
 			this.scale(1/scaleUP);
 		},
 		n:function(){
-			debugDrawCalls++;
-			//ctx.scale(1*scaleDOWN,1*scaleDOWN);
-			
 			this.scale(1*scaleDOWN);
 		},
 		s:function(i,data){
@@ -107,14 +106,11 @@ define(function LSystem(){
 			ctx.beginPath();
 				var n = (Math.floor(data[i%data.length]/256*10))
 				for(var v = 0; v<n; v++){
-					debugDrawCalls++;
-					//ctx.rotate((data[(i+v)%data.length]/128-1)*angleL);
-					ctx.lineWidth=size/8000*cursor.stack[cursor.i].s;
+					ctx.lineWidth=size/10000000*canvas2d.width*stackS[cursor];
 					this.rotate((data[(i+v)%data.length]/128-1)*angleL);
-					ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
-					this.translate((data[i%data.length]/256*size/2000));
-					ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
-					//ctx.translate((data[(i+v)%data.length]/256*size/2000)+size/2000);
+					ctx.moveTo(stackX[cursor],stackY[cursor]);
+					this.translate((data[i%data.length]/256*size/2500000*canvas2d.width));
+					ctx.lineTo(stackX[cursor],stackY[cursor]);
 				}
 			}
 			ctx.stroke();
@@ -124,102 +120,171 @@ define(function LSystem(){
 			if(data){
 				var n = (Math.floor(data[i%data.length]/256*10))
 				for(var v = 0; v<n; v++){
-					debugDrawCalls++;
 					if(data[(i+v)%data.length]<96){
 						this.rotate(angleL);
-						//ctx.rotate(angleL);
 					}else if(data[(i+v)%data.length]>160){
 						this.rotate(angleR);
-						//ctx.rotate(angleR);
 					}
-					ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
-					this.translate(size/2000,0);
-					ctx.lineWidth=size/8000*cursor.stack[cursor.i].s;
-					ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
-					//ctx.translate(size/2000,0);
+					ctx.moveTo(stackX[cursor],stackY[cursor]);
+					this.translate(size/2500000*canvas2d.width);
+					ctx.lineWidth=size/10000000*canvas2d.width*stackS[cursor];
+					ctx.lineTo(stackX[cursor],stackY[cursor]);
 				}
 			}
 			ctx.stroke();
 		},
 		h:function(i,data){
-			debugDrawCalls++;
-			this.translate((data[i%data.length]/256*size/2000)+size/2000);
-			//ctx.moveTo((data[i%data.length]/256*size/2000)+size/2000,0);
-			//ctx.translate((data[i%data.length]/256*size/2000)+size/2000,0);
+			this.translate((data[i%data.length]/256*size/2500000*canvas2d.width)+size/2500000*canvas2d.width);
 		},
 
 		l:function(i,data){
-			debugDrawCalls++;
 			ctx.beginPath();
-			ctx.lineWidth=size/8000*cursor.stack[cursor.i].s;
-			ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
-			this.translate((data[i%data.length]/256*size/2000)+size/2000);
-			ctx.lineTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
-			//ctx.moveTo(0,0)
-			//ctx.translate((data[i%data.length]/256*size/2000)+size/2000,0);
+			ctx.lineWidth=size/10000000*canvas2d.width*stackS[cursor];
+			ctx.moveTo(stackX[cursor],stackY[cursor]);
+			this.translate((data[i%data.length]/256*size/2500000*canvas2d.width)+size/2500000*canvas2d.width);
+			ctx.lineTo(stackX[cursor],stackY[cursor]);
 			ctx.stroke();
-			
-			//ctx.stroke();
 		},
 		o:function(i,data){
 			if(data){
-				debugDrawCalls++;
 				ctx.beginPath()
-				ctx.fillStyle="hsl("+(data[i%data.length]*1.75)+",100%,50%)";
-				//ctx.moveTo(cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
+				ctx.fillStyle="hsl("+(data[i%data.length]*1.0)+",100%,50%)";
 				ctx.arc(
-					cursor.stack[cursor.i].x,
-					cursor.stack[cursor.i].y,
-					Math.abs(.285*data[i%data.length]/256*size/2000)*cursor.stack[cursor.i].s,
+					stackX[cursor],
+					stackY[cursor],
+					Math.abs(.5*data[i%data.length]/256*size/2500000*canvas2d.width)*stackS[cursor],
 					0,Math.PI*2);
 				ctx.fill();
-				//ctx.stroke();
 			}
 		}
 	}
 
 	scaleFS.apply(canvas2d,[]);
+	var highWarning = $("<span class='tip warning'>too-much-stuff-warning. Safety option. Reduce letters.</span>")
+		.appendTo($("#interface>.head"))
+		.hide()
+		;
+	var lowHelp = $("<span class='tip help'></span>")
+		.appendTo($("#tabKeys"))
+		.hide();
 
+	requestAnimationFrame(redraw);
 	return {
 		init:init,
-		draw:draw,
 		clearScreen:clearScreen,
 		setClearColor:setClearColor,
-		setData:setData,
+		setLineColor:setLineColor,
+		useTimeDomain:useTimeDomain,
+		redraw:triggerRedraw,
 		setRule:setRule,
 		setCenter:setCenter,
 		moveCenter:moveCenter,
 		setSize:setSize,
-		setAngle:setAngle
+		setAngle:setAngle,
+		setCompileTimeout:setCompileTimeout,
+		setLoopTimeout:setLoopTimeout,
+		setDrawTimeout:setDrawTimeout,
+		setScaleFactor:setScaleFactor
 	};
+
+	function setScaleFactor(up,down){
+		scaleUP = up;
+		scaleDOWN = down;
+		return "Upscale factor set to "+up+",Downscale factor set to "+down;
+	}
+	function setCompileTimeout(val){
+		params.compileTimeout = val;
+		return "Compiler Timeout set to "+val+"ms";
+	};
+	function setLoopTimeout(val){
+		params.maxLoopTime = val;
+		return "Loop Timeout set to "+val+"ms";
+	};
+	function setDrawTimeout(val){
+		params.maxDrawTime = val;
+		return "Draw Timeout set to "+val+"ms";
+	}
 	function init(rule,iterations,size,angle){
 		setRule(rule,iterations);
 		setSize(size);
 		setAngle(angle);
 	};
-
+	function audioStart(e){
+		looping=true;
+		loop();
+	}
+	function audioStop(e){
+		looping=false;
+	}
+	function loop(){
+		//console.log(drawTime);
+		if(looping&&drawTime<params.maxLoopTime)
+			requestAnimationFrame(loop);
+		redraw();
+	}
+	function useTimeDomain(b){
+		usingTimeDomain=b;
+	}
+	function triggerRedraw(){
+		requestAnimationFrame(redraw);
+	}
+	function redraw(){
+		drawTime = Date.now();
+		AudioPlayer.analyse(usingTimeDomain);
+		clearScreen();
+		draw();
+		drawTime = Date.now()-drawTime;
+	}
 	function setRule(rule,iterations){
 		compiler.postMessage([rule,iterations]);
-		var timeout = setTimeout(timeoutHandler,5000);
+		var timeout = setTimeout(timeoutHandler,params.compileTimeout);
 		compiler.addEventListener("message",successHandler,false);
+		audioStop();
 		function timeoutHandler(){
 			compiler.terminate();
 			compiler = new Worker("scripts/compiler.js");
 			console.log("compiler timed out");
+			
+			$(".tip").hide()
+			highWarning.show();
 		}
 		function successHandler(e){
 			compiler.removeEventListener("message",successHandler);
+			if(e.data.length<300){
+				lowHelp.show().text(e.data
+					.join("")
+					.split(	"q")
+					.join(	"[")
+					.split(	"p")
+					.join(	"]")
+					.split(	"d")
+					.join(	"+")
+					.split(	"b")
+					.join(	"-")
+					.split(	"u")
+					.join(	"<")
+					.split(	"n")
+					.join(	">")
+					.split(	"l")
+					.join(	"i")
+				);
+			}else{
+				lowHelp.show().text("Size: "+e.data.length);
+			}
+
+			highWarning.hide();
 			clearTimeout(timeout);
 			compiledCode=e.data;
-			//console.log(e.data.length);
+			if(!AudioPlayer.element.paused){
+				audioStart();
+			};
 			compiler.onmessage=null;
 			clearScreen();
-			draw();		
+			requestAnimationFrame(redraw);
+
 		}
 	}
-	function setData(_audioData){
-		audioData = _audioData;
-	}
+	
 
 	function setCenter(x,y){
 		startPos[0]=x;
@@ -230,38 +295,44 @@ define(function LSystem(){
 		startPos[1]+=y;
 	}
 	function setSize(n){
-		size=n*Math.pow(1.2,n);
+		//size=n*Math.pow(1.2,n);
+		size=n;
+		
 	}
 	function setAngle(n){
 		angleL = n/360*Math.PI*2;
 		angleR = -n/360*Math.PI*2;
 	}
-	function setClearColor(color,alpha){
-		clearColor = toRGBA(color,alpha);
+	function setClearColor(color){
+		//clearColor = color.getAlpha();
+		//clearColor = ["radial-gradient(ellipse,",color.brighten(5),",",color.darken(5),")"].join("");
+		var x = canvas2d.width/2;
+		var y = canvas2d.height/2;
+		clearColor = ctx.createRadialGradient(x,y,0,x,y,2*x);
+		clearColor.addColorStop(0,color);
+		clearColor.addColorStop(1,color.darken(20));
+		redraw();
+		//console.log(color,c);
+		//canvas2d.style.background = c;
+	};
+	function setLineColor(color){
+		lineColor = color;
 	}
 	function clearScreen(){
-		ctx.setTransform(1,0,0,1,0,0);
+		//ctx.setTransform(1,0,0,1,0,0);
 		ctx.fillStyle = clearColor;
 		ctx.fillRect(0,0,canvas2d.width,canvas2d.height);
-	}
-	function toRGBA(s,a){
-		var R = parseInt(s[1]+s[2],16);
-		var G = parseInt(s[3]+s[4],16);
-		var B = parseInt(s[5]+s[6],16);
-		return "rgba("+R+","+G+","+B+","+a+")";
+		//ctx.clearRect(0,0,canvas2d.width,canvas2d.height);
 	}
 	function scaleFS(){
 		var dE = document.documentElement;
-
 		if(this.width<dE.clientWidth||this.height<dE.clientHeight){
 			this.width = dE.clientWidth;
 			this.style.width = dE.clientWidth+"px";
 			this.height = dE.clientHeight;
 			this.style.height = dE.clientHeight+"px";
-			draw();
+			requestAnimationFrame(redraw);
 		}
-		
-		
 	}
 	function debugTimerStart(){
 		return Date.now();
@@ -269,56 +340,31 @@ define(function LSystem(){
 	function debugTimerEnd(n){
 		return Date.now()-n;
 	}
-	function draw(){
-		//console.log(cursor.stack[0]);
-		//console.log(cursor.stack[1]);
-		cursor.stack[0].x=startPos[0];
-		cursor.stack[0].y=startPos[1];
-		cursor.stack[0].a=startAngle;
-		cursor.stack[0].s=1;
-		cursor.i=0;
-		//turtle.translate(startPos[0],startPos[1]);
-		//turtle.rotate(startAngle);
+	function draw(audioData){
+		//stackX.length=1;
+		stackX[0]=startPos[0];
+		stackY[0]=startPos[1];
+		stackA[0]=startAngle;
+		stackS[0]=1;
+		cursor=0;
 
-		//console.log(cursor);
-		//console.time("drawTime")
-		//debugDrawTime = debugTimerStart();
-		debugDrawCalls=0;
-		//clear(clearColor);
-		//if(!data){return}
-		//ctx.setTransform(1,0,0,1,0,0);
-		//ctx.translate(startPos[0],startPos[1]);
 		
-		//pos[0]=500;
-		//pos[1]=500;
-		//dir=0;
-		//ctx.rotate(startAngle);
 		ctx.lineWidth = size/10000;
-		//ctx.lineWidth=1;
-		ctx.fillStyle = toRGBA(plantColor.value,plantAlpha.value);
-		ctx.strokeStyle = toRGBA(plantColor.value,plantAlpha.value);
+		ctx.fillStyle = lineColor;
+		ctx.strokeStyle = lineColor;
 		ctx.lineCap = "round";
-		for(var i = 0; i<compiledCode.length; i++){
-				//ctx.beginPath();
-				turtle[compiledCode[i]](i,audioData);
-				//ctx.stroke();
-				//ctx.fill();
+		if(usingTimeDomain){
+			
+			for(var i = 0; i<compiledCode.length; i++){
+				turtle[compiledCode[i]](i,AudioPlayer.timeDomainData);
+			}
+		}else{
+			
+			for(var i = 0; i<compiledCode.length; i++){
+				turtle[compiledCode[i]](i,AudioPlayer.frequencyData);
+			}
 		}
-		
-		//debugDrawTime = debugTimerEnd(debugDrawTime);
-		//debugFrames.push(debugDrawTime);
-		/*
-		ctx.fillStyle="white";
-		ctx.font = "26px consolas";
-		ctx.setTransform(1,0,0,1,0,0);
-		ctx.fillText(debugDrawTime+"ms",20,80);
-		ctx.fillText(((1000/debugDrawTime)>>0)+"FPS",20,110);
-		ctx.fillText(debugDrawCalls+" drawcalls",20,140);
-		*/
-		//console.timeEnd("drawTime")
 
-		//ctx.restore();
-		//return sequence;
 	}
 });
 

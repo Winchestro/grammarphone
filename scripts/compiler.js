@@ -1,29 +1,31 @@
-var axiom = "I";
+//var axiom = "I";
 var compiledCode = [];
 var rewrittenCode = [];
 onmessage = function(e){
 	compileJob(e.data[0],e.data[1]);
 }
 function compileJob(rule,iterations){
+	if(!rule.length){return postMessage(["h"])}
 	//console.log(rule);
 	//console.log(iterations);
-	var sequence=axiom;
-	
+	var sequence=rule.match(/^[^=]*/)[0];
 	var match = false;
-	
+	//console.log(rule);
+	//var first = rule.split(" ")[0];
+	//console.log(first,rule);
+	//var rule = rule.unshift().join(" ");
+	//console.log(rule);
 	return rewrite(sequence,iterations);
 	
 	function rewrite(sequence,n){
 		//console.log(sequence)
 		//console.log(n)
+
 		if(n>0){
 			var rules = rule.split(" ");
-			
-			for(var i = 0; i<sequence.length; i++){
-				
-				
-				applyRules(i,rules,0);
 
+			for(var i = 0; i<sequence.length; i++){
+				applyRules(i,rules,0);
 			}
 			sequence = rewrittenCode.join("");
 			
@@ -75,15 +77,15 @@ function compileJob(rule,iterations){
 					break;
 
 					case "4":
-					case "d":
+					case "b":
 					case "+":
-					compiledCode.push("d");
+					compiledCode.push("b");
 					break;
 
 					case "-":
 					case "6":
-					case "b":
-					compiledCode.push("b");
+					case "d":
+					compiledCode.push("d");
 					break;
 
 					case "[":
