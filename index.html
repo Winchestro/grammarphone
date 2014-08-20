@@ -4,77 +4,74 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" type="text/css" href="demo.css">
+		<link rel="stylesheet" type="text/css" href="css/demo.css">
+		<link rel='stylesheet' type="text/css" href='css/spectrum.css' />
+		<link rel='stylesheet' type="text/css" href='css/audioplayer.css' />
+		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.css' />
+		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.structure.css' />
+		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.theme.css' />
+
 		<link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAGDSURBVCjPVZC9S1thFMZ/533f3HvxJmISImraFFqwIhRpias6FdQiLSWFQJdCO5SW4n/gXBAHJ5dO/gMKluLg5iTapSBKBxH8GGJJaHqLubl53w5JQc9whvN8nIdHuDnDzGGI2aL2/2QAmMDx03s1/3TypUq1480H+8s0biqrVJgvNvecc879de9i9SFzywEg9MKIRRQxv1JBRt8iCMAjRnnMfU45Z2e8MdB9okqkK4WPIkQ68lmgyAJjxM8pd7V6iavXz6oHG50tcuXyD72G8IUzX5fiXVV3qAweITKr+o9W318aVkg4Ik8wIy8EMJ+pXZwnhWozaXw79j9xhxoOhe3lE+BesF146HWitvOtGAYQ6jRobds3XGogsaO23K9Ck5YMfQhtfuORG2l9Tw7NEM3ZbAXqaAwBij9EBBRRfc238tWkiZ4U8j416sRcI4Tk8dB0IAXmZGpwWoAcuV53gsVy3W0Pk10fuis4hDYGEFp0AFDdrUtGImIEsCiSHuywAPwDYjB4OBAMtzcAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTQtMDUtMjRUMTc6MjU6NTcrMDI6MDBhKPD/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE0LTA1LTI0VDE3OjI1OjU3KzAyOjAwEHVIQwAAAABJRU5ErkJggg==">
 	</head>
 	<body>
-		
+		<div class = "canv overlay"></div>
 		<canvas id="canvas2d"></canvas>
-		<div class="ui container">
-			<form id="LSform">
-				<div class="ui row head">
-					<input id="LSInput" type="text" autocomplete="off" placeholder="enter rule" value="I=S S=i>[+SO][-SO]"/>
-					
-					<button id="btnGallery" class="tab">
-						<svg width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
+		<div id="interface">
+			<div class="head">
+				<input id="LSInput" type="text" autocomplete="off" placeholder="L=II left=replaces>right" value="So=i>[+So]-S"/>
+			</div>
+			<div class="menu">
+				<div class="menuhead">
+					<input type="number" id="LSIter" type="range" min="0" max="20" value="4"/>
+					<button id="btnGallery" class="tab uiBG">
+						<svg class="button" width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
 							<path d="M 64.00,128.00l0.00,320.00 l 448.00,0.00 L 512.00,128.00 L 64.00,128.00 z M 480.00,394.667L 416.00,288.00l-72.533,60.444L 288.00,256.00L 96.00,416.00L 96.00,160.00 l 384.00,0.00 L 480.00,394.667 zM 128.00,240.00A48.00,48.00 7560.00 1,0 224.00,240A48.00,48.00 7560.00 1,0 128.00,240zM 448.00,64.00L0.00,64.00L0.00,384.00L 32.00,384.00L 32.00,96.00L 448.00,96.00 z" >
 							</path>
 						</svg>
 					</button>
-					<button id="btnKeys" class="tab">
-						<svg width="16" height="16" viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
+					<button id="btnKeys" class="tab uiBG">
+						<svg class="button" width="16" height="16" viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
 							<path d="M 544.00,64.00L 32.00,64.00 C 14.40,64.00,0.00,78.40,0.00,96.00l0.00,320.00 c0.00,17.60, 14.40,32.00, 32.00,32.00l 512.00,0.00 c 17.60,0.00, 32.00-14.40, 32.00-32.00L 576.00,96.00 C 576.00,78.40, 561.60,64.00, 544.00,64.00z M 320.00,128.00 l 64.00,0.00 l0.00,64.00 l-64.00,0.00 L 320.00,128.00 z M 416.00,224.00l0.00,64.00 l-64.00,0.00 l0.00-64.00 L 416.00,224.00 z M 224.00,128.00l 64.00,0.00 l0.00,64.00 l-64.00,0.00 L 224.00,128.00 z M 320.00,224.00l0.00,64.00 l-64.00,0.00 l0.00-64.00 L 320.00,224.00 z M 128.00,128.00l 64.00,0.00 l0.00,64.00 l-64.00,0.00 L 128.00,128.00 z M 224.00,224.00l0.00,64.00 l-64.00,0.00 l0.00-64.00 L 224.00,224.00 z M 64.00,128.00l 32.00,0.00 l0.00,64.00 L 64.00,192.00 L 64.00,128.00 z M 64.00,224.00l 64.00,0.00 l0.00,64.00 L 64.00,288.00 L 64.00,224.00 z M 96.00,384.00L 64.00,384.00 l0.00-64.00 l 32.00,0.00 L 96.00,384.00 z M 384.00,384.00L 128.00,384.00 l0.00-64.00 l 256.00,0.00 L 384.00,384.00 z M 512.00,384.00l-96.00,0.00 l0.00-64.00 l 96.00,0.00 L 512.00,384.00 z M 512.00,288.00l-64.00,0.00 l0.00-64.00 l 64.00,0.00 L 512.00,288.00 z M 512.00,192.00l-96.00,0.00 l0.00-64.00 l 96.00,0.00 L 512.00,192.00 z" >
 							</path>
 						</svg>
 					</button>
-					<button id="btnMusic" class="tab">
-						<svg width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
+					<button id="btnMusic" class="tab uiBG">
+						<svg class="button" width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
 							<path d="M 160.00,96.00 L 512.00,0.00 L 512.00,32.00 L 512.00,96.00 L 512.00,368.00 C 512.00,412.183 461.855,448.00 400.00,448.00 C 338.145,448.00 288.00,412.183 288.00,368.00 C 288.00,323.817 338.145,288.00 400.00,288.00 C 417.179,288.00 433.451,290.766 448.00,295.703 L 448.00,130.909 L 224.00,192.00 L 224.00,432.00 C 224.00,476.183 173.856,512.00 112.00,512.00 C 50.144,512.00 0.00,476.183 0.00,432.00 C 0.00,387.817 50.144,352.00 112.00,352.00 C 129.179,352.00 145.451,354.766 160.00,359.703 L 160.00,192.00 L 160.00,96.00 Z" >
 							</path>
 						</svg>
 					</button>
-					<button id="btnOptions" class="tab">
-						<svg  width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
+					<button id="btnOptions" class="tab uiBG">
+						<svg  class="button" width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
 							<path d="M 224.00,64.00l0.00-8.00 c0.00-13.20-10.80-24.00-24.00-24.00l-80.00,0.00 c-13.20,0.00-24.00,10.80-24.00,24.00l0.00,8.00 L0.00,64.00 l0.00,64.00 l 96.00,0.00 l0.00,8.00 c0.00,13.20, 10.80,24.00, 24.00,24.00l 80.00,0.00 c 13.20,0.00, 24.00-10.80, 24.00-24.00l0.00-8.00 l 288.00,0.00 L 512.00,64.00 L 224.00,64.00 z M 128.00,128.00L 128.00,64.00 l 64.00,0.00 l0.00,64.00 L 128.00,128.00 zM 416.00,216.00c0.00-13.20-10.80-24.00-24.00-24.00l-80.00,0.00 c-13.20,0.00-24.00,10.80-24.00,24.00l0.00,8.00 L0.00,224.00 l0.00,64.00 l 288.00,0.00 l0.00,8.00 c0.00,13.20, 10.80,24.00, 24.00,24.00l 80.00,0.00 c 13.20,0.00, 24.00-10.80, 24.00-24.00l0.00-8.00 l 96.00,0.00 l0.00-64.00 l-96.00,0.00 L 416.00,216.00 z M 320.00,288.00l0.00-64.00 l 64.00,0.00 l0.00,64.00 L 320.00,288.00 zM 224.00,376.00c0.00-13.20-10.80-24.00-24.00-24.00l-80.00,0.00 c-13.20,0.00-24.00,10.80-24.00,24.00l0.00,8.00 L0.00,384.00 l0.00,64.00 l 96.00,0.00 l0.00,8.00 c0.00,13.20, 10.80,24.00, 24.00,24.00l 80.00,0.00 c 13.20,0.00, 24.00-10.80, 24.00-24.00l0.00-8.00 l 288.00,0.00 l0.00-64.00 L 224.00,384.00 L 224.00,376.00 z M 128.00,448.00l0.00-64.00 l 64.00,0.00 l0.00,64.00 L 128.00,448.00 z" >
 							</path>
 						</svg>
 					</button>
 				</div>
-				<div id="tabOptions" style="display:none" class="ui row tab">
-					<div class="options container">
-						<div class="ui group">
-							<span>Fadeout</span>
-							<input tabindex="6" id="clearColor" type="color" value="#08103b"/>
-							<input tabindex="7" id="clearAlpha" type="range" min="0.01" step="0.01" max="1.00"value="1.00"/>
-						</div>
-						<div class="ui group">
-							<span>Line</span>
-							<input tabindex="8" id="plantColor" type="color" value="#000000"/>
-							<input tabindex="9" id="plantAlpha" type="range" min="0.01" step="0.01" max="1.00"value="0.50"/>
-						</div>
-						<div class="ui group">
-							<span>Iterations </span>
-							<span id="LSIterName"></span>
-							<input tabindex="10" id="LSIter" type="range" min="0" max="10" value="4"/>
-						</div>
-						<div class="ui group">
-							<span>Zoom </span>
-							<span id="LSzoomAmount"></span>
-							<input id="LSSize" type="range" min="1" max="100" step="1" value="34"/>
+				<div class="menubody" style="display:none">
+					<div id="tabOptions"  class="ui row tab uiBG" style="display:flex">
+						<div class="options container" >
+							<svg title="[Left/Right Arrow Key] Click center to round down" class="angle container" xmlns="http://www.w3.org/2000/svg" version="1.1"viewBox="0 0 512 512">
+								<ellipse class="angle clickable" cx="256" cy="256" rx="256" ry="256"></ellipse>
+								<path class="angle symbol" d="M 224.00,288.00L 224.00,64.00 C 100.288,64.00,0.00,164.288,0.00,288.00s 100.288,224.00, 224.00,224.00s 224.00-100.288, 224.00-224.00c0.00-36.017-8.514-70.042-23.618-100.191 L 224.00,288.00zM 456.382,123.809C 419.606,50.401, 343.695,0.00, 256.00,0.00l0.00,224.00 L 456.382,123.809z" ></path>
+								<text class="angle description" x="256" y="256">0.80</text>
+							</svg>
+							<div class="color container">
+								<input tabindex="6" id="clearColor" type="color" value="#08103b"/>
+								<input tabindex="7" id="plantColor" type="color" value="#000000"/>
+							</div>
+
+							<svg title="[Mouse Wheel] Click center to reset panning (Drag on canvas)" class="zoom container" xmlns="http://www.w3.org/2000/svg" version="1.1"viewBox="0 0 512 512">
+								<ellipse class="zoom clickable" cx="256" cy="256" rx="256" ry="256"></ellipse>
+								<path class="zoom symbol" d="M 496.131,435.698L 374.855,332.551c-12.537-11.283-25.945-16.463-36.776-15.963C 366.707,283.054, 384.00,239.549, 384.00,192.00 C 384.00,85.961, 298.039,0.00, 192.00,0.00C 85.962,0.00,0.00,85.961,0.00,192.00c0.00,106.039, 85.961,192.00, 192.00,192.00c 47.549,0.00, 91.054-17.293, 124.588-45.922 c-0.50,10.831, 4.68,24.239, 15.963,36.776l 103.147,121.276c 17.661,19.623, 46.511,21.277, 64.11,3.678S 515.754,453.359, 496.131,435.698 z M 192.00,320.00c-70.692,0.00-128.00-57.308-128.00-128.00S 121.308,64.00, 192.00,64.00s 128.00,57.308, 128.00,128.00S 262.693,320.00, 192.00,320.00zM 224.00,96.00L 160.00,96.00L 160.00,160.00L 96.00,160.00L 96.00,224.00L 160.00,224.00L 160.00,288.00L 224.00,288.00L 224.00,224.00L 288.00,224.00L 288.00,160.00L 224.00,160.00 z" ></path>
+								<text class="zoom description" x="256" y="256">0.80</text>
+							</svg>
 							
 						</div>
-						<div class="ui group">
-							<span>Angle </span>
-							<span id="LSAngleName">90°</span>
-							<input id="LSAngle" type="range" min="0" max="360" value="45"/>
-							
-						</div>
-					</div>
-				</div>
-				
-				<div id="tabKeys" style="display:none" class="ui row tab">
-					<div class="options container">
 						
+
+					</div>
+					<div id="tabKeys" class="ui row tab uiBG" style="display:flex">
 						<div class="ui group">
 							<span>Symbol Bindings</span>
 						</div>
@@ -100,11 +97,11 @@
 						</div>
 						<div class="ui group">
 							<span>Rotate Left</span>
-							<input id="keysLeft" type="text" readonly value="+ 4 b">
+							<input id="keysLeft" type="text" readonly value="+ 4 d">
 						</div>
 						<div class="ui group">
 							<span>Rotate Right</span>
-							<input id="keysRight" type="text" readonly value="- 6 d">
+							<input id="keysRight" type="text" readonly value="- 6 b">
 						</div>
 						<div class="ui group">
 							<span>Scale Up</span>
@@ -123,49 +120,52 @@
 							<input id="keysPop" type="text" readonly value="] 9 p ) }">
 						</div>
 					</div>
-				</div>
-
-				<div id="tabMusic" style="display:none" class="ui row tab">
-					<div class="options container">
-						<div class="ui group">
-							<span lable="Use time domain data">Use Time Domain Data</span>
-							<input id="VisTimeDomain" type="radio" name="Vis" checked value="
-							timeDomainData">
-								
-							</div>
-							<div class="ui group">
-								<span label="Use frequency data">Use Frequency Data</span>
-								<input id="VisFrequency" type="radio" name="Vis" value="frequencyData">
-							</div>
-							
-							<div class="ui group">
-								<span>Smooth</span>
-								<span id="LSSmoothAmount"></span>
-								<input label="Fast Fourier Transformation on frequency data for smoothing" id="VisSmoothing" type="range" min="0" max="0.99" step="0.01" value="0.8"/>
-								
-							</div>
-							
-							<div id="audioPlayerRoot">
-								<div class="ui group">
-									<input id="filePicker" multiple type="file"/>
-								</div>
-							</div>
-							
-								
-						
-							
+					<div id="tabMusic" class="ui row tab uiBG" style="display:flex">
+						<div class="controls">
+							<svg title="TimeDomain/Frequency" class="analyser container" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 512 512">
+								<ellipse class="analyser clickable" cx="256" cy="256" rx="256" ry="256"></ellipse>
+								<path class="analyser symbol stateA" d="M0.00,416.00L 512.00,416.00L 512.00,480.00L0.00,480.00zM 64.00,288.00L 128.00,288.00L 128.00,384.00L 64.00,384.00zM 160.00,160.00L 224.00,160.00L 224.00,384.00L 160.00,384.00zM 256.00,256.00L 320.00,256.00L 320.00,384.00L 256.00,384.00zM 352.00,64.00L 416.00,64.00L 416.00,384.00L 352.00,384.00z" ></path>
+								<path class="analyser symbol stateB" d="M 144.00,192.00L 48.00,192.00 c-8.80,0.00-16.00,7.20-16.00,16.00l0.00,288.00 c0.00,8.80, 7.20,16.00, 16.00,16.00l 96.00,0.00 c 8.80,0.00, 16.00-7.20, 16.00-16.00L 160.00,208.00 C 160.00,199.20, 152.80,192.00, 144.00,192.00z M 144.00,480.00 L 48.00,480.00 L 48.00,352.00 l 96.00,0.00 L 144.00,480.00 zM 304.00,128.00l-96.00,0.00 c-8.80,0.00-16.00,7.20-16.00,16.00l0.00,352.00 c0.00,8.80, 7.20,16.00, 16.00,16.00l 96.00,0.00 c 8.80,0.00, 16.00-7.20, 16.00-16.00L 320.00,144.00 C 320.00,135.20, 312.80,128.00, 304.00,128.00z M 304.00,480.00l-96.00,0.00 L 208.00,320.00 l 96.00,0.00 L 304.00,480.00 zM 464.00,64.00l-96.00,0.00 c-8.80,0.00-16.00,7.20-16.00,16.00l0.00,416.00 c0.00,8.80, 7.20,16.00, 16.00,16.00l 96.00,0.00 c 8.80,0.00, 16.00-7.20, 16.00-16.00L 480.00,80.00 C 480.00,71.20, 472.80,64.00, 464.00,64.00z M 464.00,480.00l-96.00,0.00 L 368.00,288.00 l 96.00,0.00 L 464.00,480.00 z" ></path>
+								<text class="analyser description" x="256" y="256">0.80</text>
+							</svg>
+							<svg class="play container" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 512 512">
+								<ellipse class="play clickable" cx="256" cy="256" rx="256" ry="256"></ellipse>
+								<path class="play symbol" d="M 192.00,144.00L 384.00,256.00L 192.00,368.00 z" ></path>
+								<text class="play description" x="256" y="256">00:00</text>
+							</svg>
+							<svg title="Drop files to add" class="files container" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 512 512">
+								<ellipse class="files clickable" cx="256" cy="256" rx="256" ry="256" fill="transparent" stroke="black"></ellipse>
+								<path class="files symbol stateA" d="M 0.00,160.00 L 512.00,160.00 L 480.00,480.00 L 32.00,480.00 L 0.00,160.00 Z M 464.00,96.00 L 480.00,128.00 L 32.00,128.00 L 64.00,64.00 L 240.00,64.00 L 256.00,96.00 L 464.00,96.00 Z" ></path>
+								<path class="files symbol stateB" d="M 416.00,480.00L 512.00,224.00L 96.00,224.00L0.00,480.00 zM 64.00,192.00 L 0.00,480.00 L 0.00,64.00 L 144.00,64.00 L 208.00,128.00 L 416.00,128.00 L 416.00,192.00 Z" ></path>
+							</svg>
+						</div>
+						<div class="playlist container"></div>
 					</div>
-				</div>
-				<div id="tabGallery" style="display:none" class="ui row tab">
-					<div class="option container">
+					<div id="tabGallery" class="ui row tab uiBG" style="display:flex">
+						
+							Sorry, couldn't load the Gallery (jet?)
 						
 					</div>
 				</div>
-			</form>
-			
+			</div>
 		</div>
-
+		<div style="display:none">
+		<div class="ui group">
+				<span id="LSIterOut" data-prefix="Iterations"></span>
+				<input tabindex="10" />
+			</div>
+			<span id="LSZoomOut" data-prefix="Zoom"></span>
+			<input id="LSSize" type="range" min="1" max="100" step="1" value="34"/>
+				
+			<span id="LSAngleOut" data-prefix="Angle" data-suffix="°"></span>
+			<input id="LSAngle" type="range" min="0" max="18000" value="4500"/>
+										
+			<input id="VisTimeDomain" type="radio" name="Vis" checked>	
+			<input id="VisFrequency" type="radio" name="Vis">
+			<input id="VisSmoothing" type="range" min="0" max="0.99" step="0.01" value="0.8"/>
+			<span id="LSSmoothAmount"></span>
+			<input id="filePicker" multiple type="file"/>
+		</div>
 		<script data-main="scripts/demo" src="scripts/require.js"></script>
-		
 	</body>
 </html>
