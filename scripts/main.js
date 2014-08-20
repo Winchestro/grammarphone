@@ -69,7 +69,9 @@ define(["lsystem","url","jquery","gui"],function demo(LSystem,query,$,gui){
 	}
 
 	var xhr = new XMLHttpRequest();
+<<<<<<< HEAD
 	xhr.open("GET","http://winchestro.herokuapp.com/mentions_timeline");
+>>>>>>> 1b9b4ae4d2a09ebc54f58a5c41475b91d194342e
 	xhr.send();
 	xhr.onload=function(){
 		
