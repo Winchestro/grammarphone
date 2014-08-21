@@ -102,7 +102,7 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 				})
 				function addEntries(entries){
 					d3.select(".playlist.container").call(updateList)
-					if(entries.length===0){
+					if(fs.length===0){
 						$(".play.container").hide();
 						$(".analyser.container").hide();
 						
