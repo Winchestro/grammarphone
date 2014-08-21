@@ -1,6 +1,7 @@
 @import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:700);
 @import url(http://fonts.googleapis.com/css?family=Questrial);
 
+
 body{
 	padding: 0px;
 	margin: 0px;
@@ -224,8 +225,7 @@ input[type="text"],input[type="number"],span.help{
 	/* align-items: stretch; */
 }
 ::selection{
-	background: rgb(255, 138, 6);
-	color:white;
+
 }
 
 div.ui.group>input{
@@ -310,7 +310,7 @@ img.gallery {
     border-radius: 5px;
     /* text-shadow: 0em 0em 1em rgba(255, 255, 255, 0.63); */
 }
-.gallery.item:hover a>img{
+.gallery.item:hover div>img{
     width:200%;
     margin: -20% -50%;
 }
@@ -320,8 +320,8 @@ img.gallery {
 .gallery.item:hover span {
 	 transform: translateX(300px);
 }
-.gallery.item:hover a.gallery.handle{
- 
+.gallery.imgWrapper{
+	cursor:pointer; 
 }
 .gallery.item:hover .overlay{
 	background:none;

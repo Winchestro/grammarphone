@@ -1,6 +1,7 @@
 define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($,LSystem,d3,audio){
 	$(document).tooltip();
 	var gui = {
+
 		Tab:(function(o){
 			//$(".menuhead").tabs();
 			return o;
@@ -125,10 +126,10 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			[0];
 			o.set=function(val){
 				setAny.call(this,val);
-				var rule = gui.Rule.get();
-				var	iter = gui.Iterations.get();
-				LSystem.setRule(rule,iter);
-				updateHistory();
+				//var rule = gui.Rule.get();
+				//var	iter = gui.Iterations.get();
+				//LSystem.setRule(rule,iter);
+				//updateHistory();
 			}
 			return o;
 		})({
@@ -285,6 +286,19 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 					break;
 				}
 			}.bind(o),false);
+			document.addEventListener("keyup",function(e){
+				//console.log(e.keyCode)
+				switch(e.keyCode){
+					case 39:
+						//LSystem.redraw();
+						updateHistory();
+					break;
+					case 37:
+						//LSystem.redraw();
+						updateHistory();
+					break;
+				}
+			})
 			return o;
 			function changeAngle(e,n){
 				if(e.shiftKey){
@@ -293,9 +307,9 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 					gui.Angle.set(Math.abs(((gui.Angle.get()+n)<<0)%360));
 				}
 				LSystem.setAngle(abs());
-				LSystem.redraw();
+				
 				$(gui.Angle.input).trigger("change");
-				updateHistory();
+				//updateHistory();
 				function abs(){
 					return gui.Angle.get()/Math.abs(n);
 				}
@@ -321,9 +335,9 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			[0];
 			o.set = function(val){
 				setNumber.call(this,val);
-				var rule = gui.Rule.get();
-				var	iter = gui.Iterations.get();
-				LSystem.setRule(rule,iter);
+				//var rule = gui.Rule.get();
+				//var	iter = gui.Iterations.get();
+				//LSystem.setRule(rule,iter);
 			}
 			document.addEventListener("keydown",function(e){
 				switch(e.keyCode){
@@ -356,9 +370,16 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 		}),
 		TogglePlaylist:(function(o){
 			$(".files.clickable").on("click",function(e){
-				$(".files.stateA").toggle()
-				$(".files.stateB").toggle()
-				$(".playlist.container").toggleClass("expanded");
+				if($(".playlist.container")[0].children.length){
+					$(".files.stateA").toggle()
+					$(".files.stateB").toggle()
+					$(".playlist.container").toggleClass("expanded");
+				}else{
+					$(filePicker).click();
+					$(".files.stateA").toggle()
+					$(".files.stateB").toggle()
+					$(".playlist.container").toggleClass("expanded");
+				}
 			});
 		})(),
 		PlayButton:(function(o){
@@ -395,7 +416,10 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			.on("click",function(e){
 				if(audio.element.src){
 					$(audio.element).trigger("toggle");
+				}else if($(".playlist.container")[0].children.length){
+					$($(".playlist.container")[0].children[0].children[0]).click();
 				}
+
 			})
 			[0];
 			return o;
@@ -551,31 +575,55 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			)
 	};
 	function dragHandler(e,onMove,onEnd){
+		//console.log($(this).offset().top-e.pageY);
+		e.preventDefault();
+		var clientRects = this.getClientRects();
 		var origin = this;
 		var w = this.parentElement.clientWidth;
 		var h = this.parentElement.clientHeight;
-		var offsetX = e.clientX-e.offsetX;
-		var offsetY = e.clientY-e.offsetY;
+		var offsetX = e.clientX-(e.offsetX);
+		var offsetY = e.clientY-(e.offsetY);
 		var x = e.offsetX;
 		var y = e.offsetY;
+
+		if(clientRects.length>0){
+			var cr = clientRects[0];
+			//console.dir(cr);
+			w = cr.width;
+			h = cr.height;
+			x = e.pageX - cr.left;
+			y = e.pageY - cr.top;
+			offsetX = cr.left;
+			offsetY = cr.top;
+
+		}
+		//console.log(x,y,w,h,offsetX,offsetY);
+		//console.log(e.clientY-(e.offsetY));
+		
+		
+		
 		var a = calculateAngle(x,y,w,h);
 		$(".canv.overlay").css("display","initial");
-		$(this).css("transition","0ms").css("pointer-events","none");
+		$(this).css("transition","0ms");
+		$(document).css("pointer-events","none");
 		$(window)
 		.on("mousemove",moveHandler)
 		.on("mouseup",endHandler);
 		return a;
 		function moveHandler(e){
-			x = e.clientX-offsetX;
-			y = e.clientY-offsetY;
+			x = e.pageX-offsetX;
+			y = e.pageY-offsetY;
 			a = calculateAngle(x,y,w,h);
 			onMove(a);
+			e.preventDefault();
+			return false;
 		}
 		function endHandler(e){
 			$(".canv.overlay").css("display","none");
 			$(origin)
-			.css("transition","")
-			.css("pointer-events","initial");
+			//.css("transition","")
+			//.css("pointer-events","initial");
+			$(document).css("pointer-events","none");
 			$(window)
 			.off("mouseup")
 			.off("mousemove");
