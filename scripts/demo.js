@@ -12,4 +12,5 @@ requirejs.config({
 // urlArgs: "bust=" + (new Date()).getTime(),
 require(["main"],function(main){
 	window.grammarphone=main;
+	
 });
