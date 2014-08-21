@@ -47,8 +47,10 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 			$(".play.container>.symbol").fadeOut(500);
 			$(".play.container>.description").fadeIn(500);
 			if(url){
+				URL.revokeObjectURL(this.src);
 				this.src="";
 				this.src = url;
+				
 			}else if(fs.length>0&&$(".playing").length===0){
 				$($(".playlist.entry>p")[currentSong]).trigger("click");
 			}
@@ -86,30 +88,49 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 	}
 	function Playlist(){
 		$(".playlist.container").sortable();
-		fs.open().then(function(store){
-			//fs=store;
-			//console.dir(fs)
+		if(fs){
+			fs.open().then(function(store){
+				//fs=store;
+				//console.dir(fs)
 
-			store.read(store.temp).then(function(entries){
-				addEntries(entries);
-			})
-			store.read(store.perm).then(function(entries){
-				//console.log(entries)
-				addEntries(entries);
-			})
-			function addEntries(entries){
-				d3.select(".playlist.container").call(updateList)
-				if(entries.length===0){
-					//$(".play.progress").hide();
-
-				}else{
-					currentSong=0;
-					$player[0].src=entries[0].toURL();
+				store.read(store.temp).then(function(entries){
+					addEntries(entries);
+				})
+				store.read(store.perm).then(function(entries){
+					//console.log(entries)
+					addEntries(entries);
+				})
+				function addEntries(entries){
+					d3.select(".playlist.container").call(updateList)
+					if(entries.length===0){
+						$(".play.container").hide();
+						$(".analyser.container").hide();
+						
+					}else{
+						currentSong=0;
+						$player[0].src=entries[0].toURL();
+					}
 				}
+			});
+		}else{
+			fs = [];
+			$(".play.container").hide();
+			$(".analyser.container").hide();
+			
+			fs.push = function(FileList){
+				return new Promise(function(resolve,reject){
+					FileList=toArray(FileList);
+					fs=fs.concat(FileList);
+					resolve(FileList);
+				})	
 			}
-		});
+		}
+		function toArray(list) {
+			return Array.prototype.slice.call(list || [], 0);
+		}
 		window.addEventListener("dragenter",function(e){
-			var containsFiles = e.dataTransfer.types.filter(function(e){
+			var filetypes = Array.prototype.slice.call(e.dataTransfer.types);
+			var containsFiles = filetypes.filter(function(e){
 				return e==="Files";
 			})
 			if(containsFiles){
@@ -159,12 +180,15 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 		}
 		function addFileName(selection){
 			selection.append("p")
-			.text(function(d) { return d.name; })
+			.text(function(d) { 
+				//console.log(d.name);
+				return d.name; 
+			})
 			.on("click",function(d,i){
 				$(".playing").removeClass("playing");
 				$(this.parentElement).addClass("playing");
 				currentSong=i;
-				$player.trigger("playTrigger",[d.toURL()])
+				$player.trigger("playTrigger",[(d.toURL&&d.toURL())||URL.createObjectURL(d)])
 			})
 			.on("highlight",function(d){
 				$(".playing").removeClass("playing");
@@ -199,10 +223,16 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 		}
 		function addFiles(FileList){
 			//console.log(fs)
+			if(fs.length===0){
+				$(".play.container").fadeIn(500);
+				$(".analyser.container").fadeIn(500);
+				//$(".files.clickable").off("click");
+			}
 			fs.push(FileList).then(function(files){
 				//console.log(file,i)
 				updateList();
 			}).catch(console.error.bind(console));
+			
 		}
 		function updateList(){
 			d3.select(".playlist.container").selectAll("div")

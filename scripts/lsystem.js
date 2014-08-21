@@ -3,8 +3,9 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	window.addEventListener("resize",scaleFS.bind(canvas2d),false);
 	var params={
 		maxDrawTime:	2000,
-		maxLoopTime:	500,
-		compileTimeout: 1000
+		maxLoopTime:	1000,
+		compileTimeout: 5000,
+		startUpTimeout: 20000
 	};
 	
 	var stackX=[];
@@ -16,7 +17,7 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	var startPos = [window.innerWidth/2,window.innerHeight*.75];
 	var size,angleL,angleR,audioData,clearColor,lineColor,drawTime,sequence,looping,usingTimeDomain,compiledCode =[];
 	var compiler = new Worker("scripts/compiler.js");
-
+	var wait,launched = false;
 
 	var ctx = canvas2d.getContext("2d");
 		
@@ -168,7 +169,7 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		.appendTo($("#tabKeys"))
 		.hide();
 
-	requestAnimationFrame(redraw);
+	
 	return {
 		init:init,
 		clearScreen:clearScreen,
@@ -184,9 +185,17 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		setCompileTimeout:setCompileTimeout,
 		setLoopTimeout:setLoopTimeout,
 		setDrawTimeout:setDrawTimeout,
-		setScaleFactor:setScaleFactor
+		setScaleFactor:setScaleFactor,
+		launch:launch,
+		stop:stop
 	};
-
+	function stop(){
+		launched = false;
+	}
+	function launch(){
+		launched = true;
+		setRule(wait[0],wait[1]);
+	}
 	function setScaleFactor(up,down){
 		scaleUP = up;
 		scaleDOWN = down;
@@ -226,24 +235,39 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		usingTimeDomain=b;
 	}
 	function triggerRedraw(){
-		requestAnimationFrame(redraw);
+		if(launched){
+			requestAnimationFrame(redraw);
+		}else{
+			//console.count("blocked redraws")
+		}
+
 	}
 	function redraw(){
-		drawTime = Date.now();
-		AudioPlayer.analyse(usingTimeDomain);
-		clearScreen();
-		draw();
-		drawTime = Date.now()-drawTime;
+		if(launched){
+			drawTime = Date.now();
+			AudioPlayer.analyse(usingTimeDomain);
+			clearScreen();
+			draw();
+			drawTime = Date.now()-drawTime;
+		}
 	}
 	function setRule(rule,iterations){
-		compiler.postMessage([rule,iterations]);
-		var timeout = setTimeout(timeoutHandler,params.compileTimeout);
-		compiler.addEventListener("message",successHandler,false);
-		audioStop();
+		if(launched){
+			//console.count("compiles")
+			compiler.postMessage([rule,iterations]);
+			var timeout = setTimeout(timeoutHandler,params.startUpTimeout);
+			params.startUpTimeout=params.compileTimeout;
+			compiler.addEventListener("message",successHandler,false);
+			audioStop();
+			
+		}else{
+			//console.count("blocked compiles")
+			wait = [rule,iterations];
+		}
 		function timeoutHandler(){
 			compiler.terminate();
 			compiler = new Worker("scripts/compiler.js");
-			console.log("compiler timed out");
+			console.warn("compiler timed out");
 			
 			$(".tip").hide()
 			highWarning.show();
@@ -280,7 +304,7 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 			};
 			compiler.onmessage=null;
 			clearScreen();
-			requestAnimationFrame(redraw);
+			triggerRedraw();
 
 		}
 	}
@@ -308,10 +332,13 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		//clearColor = ["radial-gradient(ellipse,",color.brighten(5),",",color.darken(5),")"].join("");
 		var x = canvas2d.width/2;
 		var y = canvas2d.height/2;
+		
 		clearColor = ctx.createRadialGradient(x,y,0,x,y,2*x);
 		clearColor.addColorStop(0,color);
 		clearColor.addColorStop(1,color.darken(20));
-		redraw();
+		
+		//clearColor = color;
+		triggerRedraw();
 		//console.log(color,c);
 		//canvas2d.style.background = c;
 	};
@@ -331,7 +358,7 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 			this.style.width = dE.clientWidth+"px";
 			this.height = dE.clientHeight;
 			this.style.height = dE.clientHeight+"px";
-			requestAnimationFrame(redraw);
+			triggerRedraw();
 		}
 	}
 	function debugTimerStart(){
@@ -342,6 +369,8 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	}
 	function draw(audioData){
 		//stackX.length=1;
+		//console.count("redraws")
+
 		stackX[0]=startPos[0];
 		stackY[0]=startPos[1];
 		stackA[0]=startAngle;

@@ -3,7 +3,7 @@ define([],function FileSystemConstructor(){
 	
 
 	if(!requestFileSystem){
-		return {}
+		return
 	}
 
 	function FS(TYPE,QUOTA,b){
@@ -180,7 +180,7 @@ define([],function FileSystemConstructor(){
 	}
 
 	function toArray(list) {
-	  return Array.prototype.slice.call(list || [], 0);
+		return Array.prototype.slice.call(list || [], 0);
 	}
 	
 	return new Storage;
