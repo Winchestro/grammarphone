@@ -47,6 +47,7 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			o.input=$(plantColor).spectrum({
 				preferredFormat: "rgb",
 				showAlpha:true,
+				containerClassName:"lineColor",
 				clickoutFiresChange: true, 
 				showButtons: false,
 				move:function(c){$(this).trigger("change")}
@@ -67,6 +68,7 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			o.input=$(clearColor).spectrum({
 				preferredFormat: "rgb",
 				showAlpha:true,
+				containerClassName:"clearColor",
 				clickoutFiresChange: true,
 				showButtons: false,
 				move:function(c){$(this).trigger("change")}
@@ -78,6 +80,22 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 				updateHistory();
 			}.bind(o))
 			;
+			$(".clearColor").append(
+				$(document.createElement("div"))
+				.addClass("renderer container")
+				.append($(document.createElement("div"))
+					.addClass("renderer method none")
+					.on("click",function(){
+						LSystem.load();
+					})
+				)
+				.append($(document.createElement("div"))
+					.addClass("renderer method hell")
+					.on("click",function(){
+						LSystem.load("hell");
+					})
+				)
+			);
 			return o;
 		})({
 			set:	setColor,

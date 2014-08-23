@@ -120,9 +120,18 @@ span:before {
 span:after {
     content: attr(data-suffix);
 }
-canvas#canvas2d{
+#canvas2d{
 	z-index: -1;
 	pointer-events: initial;
+}
+#canvas3d{
+	z-index: -30;
+	pointer-events:none;
+	width:100%;
+	height:100%;
+	position:fixed;
+	top:0;
+	left:0;
 }
 #canvas2d,#canvasddd{
 	position:fixed;
@@ -380,4 +389,25 @@ span.help {
     display: flex;
     flex-flow: column;
     margin: 8px 0px;
+}
+.renderer.container {
+    display: flex;
+    /* background: rgb(0, 255, 5); */
+    width: 100%;
+    /* height: 100%; */
+    border-radius: 6px 0px 6px 0px;
+}
+.renderer.method {
+    /* width: 50px; */
+    flex: 1 1 auto;
+    height: 50px;
+    cursor: pointer;
+    /* background: rgb(0, 102, 255); */
+}
+.method.hell{
+	background: url("../img/hell.png");
+	opacity: .5;
+}
+.method.none{
+	background: radial-gradient(rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.62));
 }

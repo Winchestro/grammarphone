@@ -35,8 +35,8 @@ define(["lsystem","jquery","gui"],function demo(LSystem,$,gui){
 		var t = queryString("t",url)||"false"
 		var a = queryString("a",url)||"30";
 		var s = queryString("s",url)||"0.8";
-		var f = queryString("f",url)||"%23ff0e471f";
-		var l = queryString("l",url)||"%239efffffa";
+		var f = queryString("f",url)||"%2347ff9a00";
+		var l = queryString("l",url)||"%23f5141312";
 		
 		i=parseInt(i);
 		z=parseInt(z);
@@ -85,7 +85,7 @@ define(["lsystem","jquery","gui"],function demo(LSystem,$,gui){
 	xhr.open("GET","http://winchestro.herokuapp.com/mentions_timeline");
 	//xhr.open("GET","./mentions_timeline");
 
-	xhr.send();
+	//xhr.send();
 	xhr.onreadystatechange=function(){
 		if(xhr.readyState===xhr.DONE&&xhr.status===200){
 			//console.log(xhr.response)	

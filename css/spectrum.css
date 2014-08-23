@@ -13,7 +13,7 @@ License: MIT
     *display: inline;
     *zoom: 1;
     /* https://github.com/bgrins/spectrum/issues/40 */
-    z-index: 9999994;
+    z-index: 10;
     overflow: hidden;
 }
 .sp-container.sp-flat {
@@ -75,29 +75,31 @@ License: MIT
 }
 
 .sp-alpha-enabled .sp-top {
-    margin-bottom: 18px;
+    margin-bottom: 30px;
 }
 .sp-alpha-enabled .sp-alpha {
     display: block;
+    border-radius: 14px;
 }
 .sp-alpha-handle {
     position:absolute;
     top:-4px;
     bottom: -4px;
-    width: 6px;
+    width: 18px;
     left: 50%;
     cursor: pointer;
     border: 1px solid black;
+    border-radius: 10px;
     background: white;
     opacity: .8;
 }
 .sp-alpha {
     display: none;
     position: absolute;
-    bottom: -14px;
+    bottom: -23px;
     right: 0;
     left: 0;
-    height: 8px;
+    height: 15px;
 }
 .sp-alpha-inner {
     border: solid 1px #333;
@@ -240,11 +242,15 @@ License: MIT
     top:0;
     cursor:pointer;
     height: 3px;
-    left: -1px;
-    right: -1px;
-    border: 1px solid #000;
-    background: white;
-    opacity: .8;
+    border-radius: 20px;
+    /* padding-top: 10px; */
+    /* padding-bottom: 5px; */
+    left: -6px;
+    right: -6px;
+    /* border: 1px solid #000; */
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 1);
+    background: rgba(255, 255, 255, 0.5);
+    /* opacity: .8; */
 }
 
 /*
@@ -254,10 +260,11 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 */
 
 .sp-container {
-    border-radius: 0;
+    /* border-radius: 0px; */
     background-color: rgba(255, 255, 255, 0.5);
-    /* border: solid 1px #f0c49B; */
-    border-radius: 5px;
+    /* border: solid 2px rgba(255, 255, 255, 0.5); */
+    /* margin-top: 11px; */
+    border-radius: 12px;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 1);
     padding: 0;
 }
@@ -304,13 +311,12 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 .sp-picker-container , .sp-palette-container {
     float:left;
     position: relative;
-    padding: 10px;
-    padding-bottom: 300px;
-    margin-bottom: -290px;
+    padding: 8px;
+    /* padding-bottom: 8px; */
+    /* margin-bottom: 0px; */
 }
 .sp-picker-container {
-    width: 126px;
-    /* border-left: solid 1px #fff; */
+    width: 158px;
 }
 
 /* Palettes */

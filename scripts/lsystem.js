@@ -1,5 +1,19 @@
 define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	var canvas2d = document.getElementById("canvas2d");
+	var canvas3d = document.createElement("canvas")
+		canvas3d.id="canvas3d";
+	window.addEventListener("resize",scaleFSQuality.bind(canvas3d),false);
+	scaleFSQuality.call(canvas3d);
+	var gls;
+	var gl = canvas3d.getContext("webgl");
+	window.gl = gl;
+	if(gl){
+		
+		gls = new GLSystem();
+		
+		window.g = gls;
+	}
+
 	window.addEventListener("resize",scaleFS.bind(canvas2d),false);
 	var params={
 		maxDrawTime:	2000,
@@ -15,7 +29,7 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	var cursor=0;
 
 	var startPos = [window.innerWidth/2,window.innerHeight*.75];
-	var size,angleL,angleR,audioData,clearColor,lineColor,drawTime,sequence,looping,usingTimeDomain,compiledCode =[];
+	var size,angleL,angleR,audioData,clearColor,lineColor,fruithue,drawTime,sequence,looping,usingTimeDomain,compiledCode =[];
 	var compiler = new Worker("scripts/compiler.js");
 	var wait,launched = false;
 
@@ -149,11 +163,12 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		o:function(i,data){
 			if(data){
 				ctx.beginPath()
-				ctx.fillStyle="hsl("+(data[i%data.length]*1.0)+",100%,50%)";
+				//ctx.fillStyle="hsl("+(data[i%data.length]*1.0)+",100%,50%)";
+				ctx.fillStyle=["hsl(",data[i%data.length]+fruithue-128,",100%,50%)"].join("");
 				ctx.arc(
 					stackX[cursor],
 					stackY[cursor],
-					Math.abs(.5*data[i%data.length]/256*size/2500000*canvas2d.width)*stackS[cursor],
+					Math.abs(Math.sin(i/100)*data[i%data.length]/256*size/2500000*canvas2d.width)*stackS[cursor],
 					0,Math.PI*2);
 				ctx.fill();
 			}
@@ -187,8 +202,215 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		setDrawTimeout:setDrawTimeout,
 		setScaleFactor:setScaleFactor,
 		launch:launch,
-		stop:stop
+		stop:stop,
+		load:gls.load
 	};
+
+
+	function GLSystem(){
+		var mouseX,mouseY,tex0,frames=0;
+		var program,VScache={},FScache={};
+
+
+		
+		document.body.appendChild(canvas3d);
+		
+		//this.loadShaders = loadShaders;
+		//this.loadFile = loadFile;
+
+		
+		loadup("hell");
+
+		
+
+		document.addEventListener("mousemove",function(event){
+			mouseX= event.clientX/window.innerWidth;
+			mouseY= 1-event.clientY/window.innerHeight;
+			
+			if(program&&program.mouseUniform!=null){
+				render();
+			}
+			
+		}, false);
+
+		this.bufferAudio = updateSoundTexture;
+		this.render = render;
+		this.load = loadup;
+		window.load=loadup;
+
+		function loadup(FS,VS,nocache){
+			FS = FS || "default";
+			if(nocache){
+				FScache ={};
+				VScache ={};
+			}
+			loadShaders(FS,VS).then(function(shader){
+				//console.log(shader);
+				bufferFSQ();
+				compileProgram(shader);
+				tex0=bufferSoundTexture(AudioPlayer.timeDomainData);
+				render();
+
+			});
+		}
+		function render(){
+			//updateAudioAnalyser();
+			frames++;
+			updateUniforms();
+			//console.count("render");
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+		function updateUniforms(){
+			gl.uniform2f(program.mouseUniform, mouseX, mouseY);
+			gl.uniform2f(program.resolutionUniform, window.innerWidth/2, window.innerHeight/2);
+			gl.uniform1f(program.timeUniform, frames);
+			gl.uniform2fv(program.positionUniform,startPos);
+			gl.uniform1f(program.scaleUniform,size);
+
+			gl.uniform4f(program.foregroundUniform,lineColor._r/256,lineColor._g/256,lineColor._b/256,lineColor._a);
+			gl.uniform4f(program.backgroundUniform,clearColor._r/256,clearColor._g/256,clearColor._b/256,clearColor._a);
+			//console.dir(lineColor,clearColor)
+			//window.l = lineColor;
+			if(typeof tex0 !== "undefined"){
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, tex0);
+				gl.uniform1i(program.tex0Uniform, 0);
+			}		
+		}
+		function updateSoundTexture(buffer){
+			gl.bindTexture(gl.TEXTURE_2D, tex0);
+			gl.texImage2D(gl.TEXTURE_2D,
+				0, 
+				gl.RGBA, 
+				16,
+				16, 
+				0,
+				gl.RGBA,
+				gl.UNSIGNED_BYTE, 
+				buffer
+			);
+		}
+		function bufferSoundTexture(buffer){
+			var TempTex = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, TempTex);
+			gl.texImage2D(gl.TEXTURE_2D,
+				0, 
+				gl.RGBA, 
+				16,
+				16, 
+				0,
+				gl.RGBA,
+				gl.UNSIGNED_BYTE, 
+				buffer);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			return TempTex;
+		}
+		function setupLocations(){
+			program.positionLocation = gl.getAttribLocation(program, "pos");
+			gl.enableVertexAttribArray(program.positionLocation);
+			gl.vertexAttribPointer(program.positionLocation, 2, gl.FLOAT, false, 0, 0);
+		}
+		function setupUniforms(){
+			program.mouseUniform	 	= gl.getUniformLocation(program, "mouse");
+			program.resolutionUniform 	= gl.getUniformLocation(program, "resolution");
+			program.timeUniform			= gl.getUniformLocation(program, "time");
+			program.scaleUniform		= gl.getUniformLocation(program, "scale");
+			program.positionUniform		= gl.getUniformLocation(program, "position");
+
+			program.foregroundUniform 	= gl.getUniformLocation(program, "fgColor");
+			program.backgroundUniform 	= gl.getUniformLocation(program, "bgColor");
+			
+			program.tex0Uniform 		= gl.getUniformLocation(program, "tex0");
+		}
+
+		function use(){
+			gl.useProgram(program);
+		}
+		function compileProgram(shader){
+			program = gl.createProgram()
+			var FS=processShader(shader.fs,gl.FRAGMENT_SHADER);
+			var VS=processShader(shader.vs,gl.VERTEX_SHADER);
+			if(FS&&VS){
+				gl.attachShader(program, FS);
+				gl.attachShader(program, VS);
+				gl.deleteShader(FS);
+				gl.deleteShader(VS);
+				gl.linkProgram(program);
+				gl.useProgram(program);
+				setupLocations();
+				setupUniforms();
+			}
+		}
+		function bufferFSQ(buffer){
+			var buffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+			gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([
+			-1.0, -1.0, 
+			 1.0, -1.0, 
+			-1.0,  1.0, 
+			-1.0,  1.0, 
+			 1.0, -1.0, 
+			 1.0,  1.0]), 
+			gl.STATIC_DRAW);
+		}
+		function processShader(code,type){
+			var shader = gl.createShader(type);
+			gl.shaderSource(shader,code);
+			gl.compileShader(shader);
+			if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
+				console.error(gl.getShaderInfoLog(shader));
+				return null;
+			}else{
+				return shader;
+			}
+		}
+		function loadShaders(FSname,VSname){
+			var VS,FS;
+			VSname = VSname || "default";
+			return new Promise(function(cb,err){
+				Promise.all([
+					FSname in FScache?
+						FS = FScache[FSname]:					
+					loadFile("scripts/shader/"+FSname+".frag").then(function(response){
+						FS = response;
+						FScache[FSname]=FS;
+					}),
+					VSname in VScache?
+						VS = VScache[VSname]:
+					loadFile("scripts/shader/"+VSname+".vert").then(function(response){
+						VS = response;
+						VScache[VSname]=VS;
+					})
+				]).then(function(){
+					cb({fs:FS,vs:VS});
+				})
+			})
+		}
+		function loadFile(path){
+			return new Promise(function(cb,err){
+				var xhr = new XMLHttpRequest();
+				xhr.open("GET",path);
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState===xhr.DONE&&xhr.status===200){
+						cb(xhr.response);
+					};
+				}
+				xhr.onerror=function(e){
+					err(e);
+				}
+				xhr.send();
+			})
+		}
+		function clearScreen(){
+			gl.clearColor(0,0,0,1);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+		}
+	}
+
 	function stop(){
 		launched = false;
 	}
@@ -321,7 +543,6 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	function setSize(n){
 		//size=n*Math.pow(1.2,n);
 		size=n;
-		
 	}
 	function setAngle(n){
 		angleL = n/360*Math.PI*2;
@@ -333,23 +554,29 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		var x = canvas2d.width/2;
 		var y = canvas2d.height/2;
 		
-		clearColor = ctx.createRadialGradient(x,y,0,x,y,2*x);
-		clearColor.addColorStop(0,color);
-		clearColor.addColorStop(1,color.darken(20));
+		//clearColor = ctx.createRadialGradient(x,y,0,x,y,2*x);
+		//clearColor.addColorStop(0,color);
+		//clearColor.addColorStop(1,color.darken(20));
 		
-		//clearColor = color;
+		clearColor = color;
 		triggerRedraw();
 		//console.log(color,c);
 		//canvas2d.style.background = c;
 	};
 	function setLineColor(color){
 		lineColor = color;
+		fruithue = color.toHsl().h;
+		//console.dir(color);
+		//window.c = color;
 	}
 	function clearScreen(){
 		//ctx.setTransform(1,0,0,1,0,0);
+		/*
 		ctx.fillStyle = clearColor;
 		ctx.fillRect(0,0,canvas2d.width,canvas2d.height);
-		//ctx.clearRect(0,0,canvas2d.width,canvas2d.height);
+		*/
+		ctx.clearRect(0,0,canvas2d.width,canvas2d.height);
+		
 	}
 	function scaleFS(){
 		var dE = document.documentElement;
@@ -357,6 +584,17 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 			this.width = dE.clientWidth;
 			this.style.width = dE.clientWidth+"px";
 			this.height = dE.clientHeight;
+			this.style.height = dE.clientHeight+"px";
+			triggerRedraw();
+		}
+	}
+	function scaleFSQuality(){
+		var quality = 2;
+		var dE = document.documentElement;
+		if(this.width/quality<dE.clientWidth||this.height/quality<dE.clientHeight){
+			this.width = dE.clientWidth/quality;
+			this.style.width = dE.clientWidth+"px";
+			this.height = dE.clientHeight/quality;
 			this.style.height = dE.clientHeight+"px";
 			triggerRedraw();
 		}
@@ -387,10 +625,18 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 			for(var i = 0; i<compiledCode.length; i++){
 				turtle[compiledCode[i]](i,AudioPlayer.timeDomainData);
 			}
+			if(gls){
+				gls.bufferAudio(AudioPlayer.timeDomainData);
+				gls.render();
+			}
 		}else{
 			
 			for(var i = 0; i<compiledCode.length; i++){
 				turtle[compiledCode[i]](i,AudioPlayer.frequencyData);
+			}
+			if(gls){
+				gls.bufferAudio(AudioPlayer.frequencyData);
+				gls.render();
 			}
 		}
 
