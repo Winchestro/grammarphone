@@ -85,7 +85,7 @@ define(["lsystem","jquery","gui"],function demo(LSystem,$,gui){
 	xhr.open("GET","http://winchestro.herokuapp.com/mentions_timeline");
 	//xhr.open("GET","./mentions_timeline");
 
-	//xhr.send();
+	xhr.send();
 	xhr.onreadystatechange=function(){
 		if(xhr.readyState===xhr.DONE&&xhr.status===200){
 			//console.log(xhr.response)	
