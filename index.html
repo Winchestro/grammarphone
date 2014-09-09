@@ -15,6 +15,7 @@
 		<link rel="stylesheet" type="text/css" href="css/demo.css">
 		<link rel='stylesheet' type="text/css" href='css/spectrum.css' />
 		<link rel='stylesheet' type="text/css" href='css/audioplayer.css' />
+		<link rel='stylesheet' type="text/css" href='css/keyboard.css' />
 		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.css' />
 		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.structure.css' />
 		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.theme.css' />
@@ -26,11 +27,12 @@
 		<canvas id="canvas2d"></canvas>
 		<div id="interface">
 			<div class="head">
-				<input id="LSInput" type="text" autocomplete="off" placeholder="add a replacement rule (example: L=LL)" value="loading ..."/>
+				<!--div id="LSInput" class="inputContainer" tabindex="-1"></div-->
+				<input id="LSInput" type="text" autocomplete="off" placeholder="add a replacement rule (example: L=LL)" value="loading ...">
 			</div>
 			<div class="menu">
 				<div class="menuhead">
-					<input type="number" id="LSIter" type="range" min="0" max="20" value="0"/>
+					<input type="number" class="inputContainer" id="LSIter" type="range" min="0" max="20" value="0"/>
 					<button id="btnGallery" class="tab uiBG">
 						<svg class="button" width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
 							<path d="M 64.00,128.00l0.00,320.00 l 448.00,0.00 L 512.00,128.00 L 64.00,128.00 z M 480.00,394.667L 416.00,288.00l-72.533,60.444L 288.00,256.00L 96.00,416.00L 96.00,160.00 l 384.00,0.00 L 480.00,394.667 zM 128.00,240.00A48.00,48.00 7560.00 1,0 224.00,240A48.00,48.00 7560.00 1,0 128.00,240zM 448.00,64.00L0.00,64.00L0.00,384.00L 32.00,384.00L 32.00,96.00L 448.00,96.00 z" >
@@ -61,8 +63,8 @@
 						<div class="options container" >
 							<svg title="[Left/Right Arrow Key] Click center to round down" class="angle container" xmlns="http://www.w3.org/2000/svg" version="1.1"viewBox="0 0 512 512">
 								<ellipse class="angle clickable" cx="256" cy="256" rx="256" ry="256"></ellipse>
-								<path class="angle symbol" d="M 224.00,288.00L 224.00,64.00 C 100.288,64.00,0.00,164.288,0.00,288.00s 100.288,224.00, 224.00,224.00s 224.00-100.288, 224.00-224.00c0.00-36.017-8.514-70.042-23.618-100.191 L 224.00,288.00zM 456.382,123.809C 419.606,50.401, 343.695,0.00, 256.00,0.00l0.00,224.00 L 456.382,123.809z" ></path>
-								<text class="angle description" x="256" y="256">0.80</text>
+								<!--path class="angle symbol" d="M 224.00,288.00L 224.00,64.00 C 100.288,64.00,0.00,164.288,0.00,288.00s 100.288,224.00, 224.00,224.00s 224.00-100.288, 224.00-224.00c0.00-36.017-8.514-70.042-23.618-100.191 L 224.00,288.00zM 456.382,123.809C 419.606,50.401, 343.695,0.00, 256.00,0.00l0.00,224.00 L 456.382,123.809z" ></path-->
+								<text class="angle description" x="256" y="256"></text>
 							</svg>
 							<div class="color container">
 								<input tabindex="6" id="clearColor" type="color" value="#08103b"/>
@@ -147,7 +149,9 @@
 								<path class="files symbol stateB" d="M 416.00,480.00L 512.00,224.00L 96.00,224.00L0.00,480.00 zM 64.00,192.00 L 0.00,480.00 L 0.00,64.00 L 144.00,64.00 L 208.00,128.00 L 416.00,128.00 L 416.00,192.00 Z" ></path>
 							</svg>
 						</div>
-						<div class="playlist container"></div>
+						<div class="playlist container">
+							<button id="pickFile">+</button>
+						</div>
 					</div>
 					<div id="tabGallery" class="ui row tab uiBG" style="display:flex">
 						

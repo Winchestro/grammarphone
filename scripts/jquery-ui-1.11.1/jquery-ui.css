@@ -679,6 +679,7 @@ button.ui-button::-moz-focus-inner {
 /* support: IE8 - See #6727 */
 .ui-slider.ui-state-disabled .ui-slider-handle,
 .ui-slider.ui-state-disabled .ui-slider-range {
+	-webkit-filter: inherit;
 	filter: inherit;
 }
 
@@ -820,7 +821,6 @@ button.ui-button::-moz-focus-inner {
 	position: absolute;
 	z-index: 9999;
 	max-width: 300px;
-	-webkit-box-shadow: 0 0 5px #aaa;
 	box-shadow: 0 0 5px #aaa;
 }
 body .ui-tooltip {
@@ -840,12 +840,13 @@ body .ui-tooltip {
 .ui-widget select,
 .ui-widget textarea,
 .ui-widget button {
-	font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
-	font-size: 1em;
+	/* font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif; */
+	/* font-size: 1em; */
 }
 .ui-widget-content {
-	border: 1px solid #dddddd;
-	background: #eeeeee url("images/ui-bg_highlight-soft_100_eeeeee_1x100.png") 50% top repeat-x;
+	/* border: 1px solid #dddddd; */
+	
+	background: #eeeeee url("images/ui-bg_highlight-soft_100_eeeeee_1x100.png") 50% top repeat-x; 
 	color: #333333;
 }
 .ui-widget-content a {

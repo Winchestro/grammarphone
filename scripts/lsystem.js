@@ -14,7 +14,7 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		window.g = gls;
 	}
 
-	window.addEventListener("resize",scaleFS.bind(canvas2d),false);
+	//window.addEventListener("resize",scaleFS.bind(canvas2d),false);
 	var params={
 		maxDrawTime:	2000,
 		maxLoopTime:	1000,
@@ -203,15 +203,15 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		setScaleFactor:setScaleFactor,
 		launch:launch,
 		stop:stop,
-		load:gls.load
+		load:gls&&gls.load
 	};
 
 
 	function GLSystem(){
-		var mouseX,mouseY,tex0,frames=0;
+		var mouseX=0,mouseY=0,tex0,frames=0;
 		var program,VScache={},FScache={};
 
-
+		gl.viewport(0,0,document.documentElement.clientWidth,document.documentElement.clientHeight)
 		
 		document.body.appendChild(canvas3d);
 		
@@ -219,7 +219,7 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		//this.loadFile = loadFile;
 
 		
-		loadup("hell");
+		loadup("default");
 
 		
 
@@ -261,8 +261,17 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		}
 		function updateUniforms(){
+			var w = document.documentElement.clientWidth/2;
+			var h = document.documentElement.clientHeight/2;
+
+
+
 			gl.uniform2f(program.mouseUniform, mouseX, mouseY);
-			gl.uniform2f(program.resolutionUniform, window.innerWidth/2, window.innerHeight/2);
+			if(w>h){
+				gl.uniform2f(program.resolutionUniform, w,h);
+			}else{
+				gl.uniform2f(program.resolutionUniform, h, w);
+			}
 			gl.uniform1f(program.timeUniform, frames);
 			gl.uniform2fv(program.positionUniform,startPos);
 			gl.uniform1f(program.scaleUniform,size);
@@ -504,9 +513,9 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 					.split(	"p")
 					.join(	"]")
 					.split(	"d")
-					.join(	"+")
-					.split(	"b")
 					.join(	"-")
+					.split(	"b")
+					.join(	"+")
 					.split(	"u")
 					.join(	"<")
 					.split(	"n")
@@ -553,12 +562,14 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		//clearColor = ["radial-gradient(ellipse,",color.brighten(5),",",color.darken(5),")"].join("");
 		var x = canvas2d.width/2;
 		var y = canvas2d.height/2;
+		if(gl){
+			clearColor = color;
+		}else{
+			clearColor = ctx.createRadialGradient(x,y,0,x,y,2*x);
+			clearColor.addColorStop(0,color);
+			clearColor.addColorStop(1,color.darken(20));
+		}
 		
-		//clearColor = ctx.createRadialGradient(x,y,0,x,y,2*x);
-		//clearColor.addColorStop(0,color);
-		//clearColor.addColorStop(1,color.darken(20));
-		
-		clearColor = color;
 		triggerRedraw();
 		//console.log(color,c);
 		//canvas2d.style.background = c;
@@ -571,33 +582,36 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 	}
 	function clearScreen(){
 		//ctx.setTransform(1,0,0,1,0,0);
-		/*
-		ctx.fillStyle = clearColor;
-		ctx.fillRect(0,0,canvas2d.width,canvas2d.height);
-		*/
-		ctx.clearRect(0,0,canvas2d.width,canvas2d.height);
+		if(gl){
+			ctx.clearRect(0,0,canvas2d.width,canvas2d.height);
+		}else{
+			ctx.fillStyle = clearColor;
+			ctx.fillRect(0,0,canvas2d.width,canvas2d.height);
+		}
+		
 		
 	}
 	function scaleFS(){
 		var dE = document.documentElement;
-		if(this.width<dE.clientWidth||this.height<dE.clientHeight){
+		
 			this.width = dE.clientWidth;
 			this.style.width = dE.clientWidth+"px";
 			this.height = dE.clientHeight;
 			this.style.height = dE.clientHeight+"px";
 			triggerRedraw();
-		}
+		
 	}
 	function scaleFSQuality(){
 		var quality = 2;
 		var dE = document.documentElement;
-		if(this.width/quality<dE.clientWidth||this.height/quality<dE.clientHeight){
+		
 			this.width = dE.clientWidth/quality;
 			this.style.width = dE.clientWidth+"px";
 			this.height = dE.clientHeight/quality;
 			this.style.height = dE.clientHeight+"px";
-			triggerRedraw();
-		}
+			//triggerRedraw();
+		
+		scaleFS.call(canvas2d)
 	}
 	function debugTimerStart(){
 		return Date.now();

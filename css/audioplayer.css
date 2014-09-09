@@ -1,17 +1,37 @@
 #audioPlayerRoot {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 100%;
+    -ms-flex: 1 1 100%;
     flex: 1 1 100%;
+    -webkit-flex-flow: column;
+    -ms-flex-flow: column;
     flex-flow: column;
     /* align-items: flex-start; */
 }
+
 .controls {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
     /* height: 50px; */
+    -webkit-flex-flow: row;
+    -ms-flex-flow: row;
     flex-flow: row;
+    -webkit-justify-content: space-around;
+    -ms-flex-pack: distribute;
     justify-content: space-around;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 68px;
+    -ms-flex: 0 0 68px;
     flex: 0 0 68px;
 }
 .clickable {
+	-webkit-transition: 500ms;
 	transition: 500ms;
 	cursor: pointer;
 	stroke: none;
@@ -22,13 +42,19 @@
 }
 .clickable:hover~.symbol{
    	fill: black;
+   	-webkit-transform: scale(.55) translate(212px,212px);
+   	-ms-transform: scale(.55) translate(212px,212px);
    	transform: scale(.55) translate(212px,212px);
 }
 .clickable:hover~.play.symbol{
+   	-webkit-transform: scale(1.15) translate(-32px,-32px);
+   	-ms-transform: scale(1.15) translate(-32px,-32px);
    	transform: scale(1.15) translate(-32px,-32px);
 }
 .symbol{
     pointer-events:none;
+   
+    -webkit-transition: 100ms;
    
     transition: 100ms;
     /* transform: scale(0.5) translate(50%,50%);*/
@@ -37,7 +63,12 @@
 .stateB,.description{
 	 display:none;
 }
-
+.angle.description{
+	display:inline;
+}
+.angle.symbol{
+	display:none;
+}
 .description{
     font-size: 100px;
     text-anchor:middle;
@@ -47,12 +78,20 @@
     pointer-events:none;
 }
 svg.container{
+	-webkit-box-flex: 0;
+	-webkit-flex: 0 0 50px;
+	-ms-flex: 0 0 50px;
 	flex: 0 0 50px;
+	-webkit-align-self: center;
+	-ms-flex-item-align: center;
 	align-self: center;
 	box-shadow: 0px 0px 4px black;
 	border-radius: 100px;
 }
 .play.container{
+	-webkit-box-flex: 0;
+	-webkit-flex: 0 0 76px;
+	-ms-flex: 0 0 76px;
 	flex: 0 0 76px;
 	z-index: 5;
 }
@@ -65,9 +104,13 @@ svg.container{
 }
 
 .symbol{
+    -webkit-transform: scale(.5) translate(256px,256px);
+    -ms-transform: scale(.5) translate(256px,256px);
     transform: scale(.5) translate(256px,256px);
 }
 .play.symbol{
+    -webkit-transform: scale(1.1) translate(-23px,-23px);
+    -ms-transform: scale(1.1) translate(-23px,-23px);
     transform: scale(1.1) translate(-23px,-23px);
 }
 .progress.arc {
@@ -79,6 +122,7 @@ svg.container{
 }
 .progress.ring {
     fill: rgba(0, 0, 0, 0);
+    -webkit-transition: 500ms;
     transition: 500ms;
     cursor: move;
 }
@@ -94,17 +138,26 @@ svg.container{
    overflow-y: auto;
    border-radius: 8px;
    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.78) inset;
+   display: -webkit-box;
+   display: -webkit-flex;
+   display: -ms-flexbox;
    display: flex;
    width: 100%;
+   -webkit-flex-flow: column;
+   -ms-flex-flow: column;
    flex-flow: column;
    /* flex: 1 1 100%; */
    /* align-self: stretch; */
    /* max-height: 200px; */
    /* flex: 1 1 0px; */
+   -webkit-box-flex: 1;
+   -webkit-flex: 1 1 auto;
+   -ms-flex: 1 1 auto;
    flex: 1 1 auto;
    overflow: auto;
    z-index: 1;
    margin-top: 8px;
+   -webkit-transition: 500ms;
    transition: 500ms;
    /* max-height: 0px; */
    /* height: 50%; */
@@ -115,6 +168,9 @@ svg.container{
     color: black;
     /* transition: 500ms; */
     padding: 0px 9px;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 0 auto;
+    -ms-flex: 1 0 auto;
     flex: 1 0 auto;
 	display:none;
     /* min-height: 25px; */
@@ -153,8 +209,17 @@ svg.container{
     color: inherit;
     font-size: 13px;
     font-weight: inherit;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
     align-items: center;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
     justify-content: space-between;
     /* word-break: break-all; */
     /* overflow: hidden; */
@@ -166,6 +231,8 @@ svg.container{
 
 button.remove>svg:hover{
     fill: rgba(0, 0, 0, 0.75);
+	-webkit-transform:scale(1.25);
+	-ms-transform:scale(1.25);
 	transform:scale(1.25);
 }
 button.remove{
@@ -180,6 +247,7 @@ button.remove{
 }
 button.remove>svg{
     fill: rgba(0, 0, 0, 0.25);
+    -webkit-transition:250ms;
     transition:250ms;
     stroke: none;
     cursor:pointer;

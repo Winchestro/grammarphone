@@ -1,14 +1,55 @@
-define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($,LSystem,d3,audio){
+define([
+	"jquery",
+	"lsystem",
+	"d3",
+	"audioplayer",
+	"jquery-ui",
+	"spectrum",
+	"keyboard",
+	"keyboardExtensions"
+], function ($, LSystem, d3, audio) {
+	"use strict";
 	$(document).tooltip();
-	var gui = {
+	window.q = $;
+	document.addEventListener("keydown",function(e){
+		//console.log(e.keyCode);
+		switch(e.keyCode){
+				case 229:
+					$("#interface").fadeToggle(500);
+					break;
+		}
+	},false)
+	
+	/*
+	$(LSInput).keyboard({
+		layout:'custom',
+		customLayout: {"default":["= i l f o s w {space} + - < > [ ] {bksp} {left} {right} "]},
+		position:{
+			of:LSInput, // optional - null (attach to input/textarea) or a jQuery object (attach elsewhere)
+			my:'center top',
+			at:'center top',
+			at2:'center bottom' // used when "usePreview" is false (centers keyboard at bottom of the input/textarea)
+		},
+		appendTo:	'.head',
+		usePreview	: true ,
+		autoAccept	: true,
+		lockInput	: true
 
-		Tab:(function(o){
+	})
+	*/
+	/*
+	$('input[readonly]').focus(function(){
+		this.select();
+	});
+	*/
+	var gui = {
+		Tab: (function (o) {
 			//$(".menuhead").tabs();
 			return o;
 		})({
-			Options:(function(o){
+			Options: (function (o) {
 				$(o.trigger)
-				.on("click",toggleHandler.call(o.trigger,o.tab))
+				.on("click", toggleHandler.call(o.trigger, o.tab))
 				;
 				return o;
 			})({
@@ -80,22 +121,24 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 				updateHistory();
 			}.bind(o))
 			;
-			$(".clearColor").append(
-				$(document.createElement("div"))
-				.addClass("renderer container")
-				.append($(document.createElement("div"))
-					.addClass("renderer method none")
-					.on("click",function(){
-						LSystem.load();
-					})
-				)
-				.append($(document.createElement("div"))
-					.addClass("renderer method hell")
-					.on("click",function(){
-						LSystem.load("hell");
-					})
-				)
-			);
+			if(LSystem.load){
+				$(".clearColor").append(
+					$(document.createElement("div"))
+					.addClass("renderer container")
+					.append($(document.createElement("div"))
+						.addClass("renderer method none")
+						.on("click",function(){
+							LSystem.load();
+						})
+					)
+					.append($(document.createElement("div"))
+						.addClass("renderer method hell")
+						.on("click",function(){
+							LSystem.load("hell");
+						})
+					)
+				);
+			}
 			return o;
 		})({
 			set:	setColor,
@@ -133,23 +176,78 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			toggle:toggleBool
 		}),
 		Rule:(function(o){
-			o.input = $(LSInput)
-			.on("input",function(e){
+			/*
+			var caret = $(document.createElement("div"))
+			.addClass("textinput-caret")
+			[0];
+			
+			o.input = LSInput;
+			var i = d3.select(LSInput)
+			.on("change",function(e){
 				var rule = gui.Rule.get();
 				var	iter = gui.Iterations.get();
 				LSystem.setRule(rule,iter);
 				LSystem.redraw();
 				updateHistory();
 			}.bind(o))
+			$(LSInput).on("click",function(e){
+				this.focus();
+				if(e.currentTarget===e.target){
+					e.target.appendChild(caret);
+				}else{
+					e.currentTarget.insertBefore(caret,e.target);
+				}
+				console.log(e);
+			})
+			var s = i.selectAll("span")
+			.data("loading...".split(""))
+			.call(addLetter)
+			;
+			*/
+			o.input = $(LSInput)
+			.on("input",function(e){
+				var rule = gui.Rule.get();
+				var	iter = gui.Iterations.get();
+				LSystem.setRule(rule,iter);
+				//LSystem.redraw();
+				updateHistory();
+			}.bind(o))
 			[0];
 			o.set=function(val){
+				console.log(val);
 				setAny.call(this,val);
-				//var rule = gui.Rule.get();
-				//var	iter = gui.Iterations.get();
-				//LSystem.setRule(rule,iter);
+				/*
+				var s = d3.select(LSInput).selectAll("span")
+				.data(this.get().split(""))
+				.call(updateLetter)
+				;
+				s.call(addLetter);
+				s.exit()
+				.remove()
+				;
+				*/
+				var rule = gui.Rule.get();
+				var	iter = gui.Iterations.get();
+				LSystem.setRule(rule,iter);
 				//updateHistory();
 			}
+			
 			return o;
+			
+			function updateLetter(s){
+				s
+				.text(function(d){return d;})
+				.attr("data-value",function(d){
+					return d;
+				})
+			}
+			function addLetter(s){
+				s.enter()
+				.append("span")
+				.call(updateLetter)
+				;	
+			}
+			
 		})({
 			set:setAny,
 			get:getString
@@ -257,8 +355,8 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			.on("mousedown",function(e){
 				var a = dragHandler.apply(this,[e,onMove.bind(o),onEnd.bind(o)]);
 				var a2;
-				$(".angle.container>.symbol").hide();
-				$(".angle.container>.description").show();
+				//$(".angle.container>.symbol").hide();
+				//$(".angle.container>.description").show();
 
 				function onMove(a){
 					//console.log(this);
@@ -268,8 +366,8 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 				}
 				function onEnd(){
 					setVal.call(this,calcNumber(a2||a));
-					$(".angle.container>.symbol").show();
-					$(".angle.container>.description").hide();
+					//$(".angle.container>.symbol").show();
+					//$(".angle.container>.description").hide();
 					updateHistory();
 				}
 				function calcNumber(val){
@@ -285,6 +383,7 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			o.set=setVal;
 			function setVal(val){
 				setRange(".angle",val/360);
+				$(".angle.container>.description").text([val>>0,"°"].join(""));
 				setNumber.call(this,val);
 				//console.log(this.get())
 				LSystem.setAngle(this.get())
@@ -441,8 +540,7 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			})
 			[0];
 			return o;
-		})({
-		}),
+		})({}),
 		updateHistory:updateHistory
 	}
 	var vPosOrigin = [canvas2d.width/2,canvas2d.height*.75];
@@ -506,7 +604,6 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 	};
 	function touchHandler(e){
 		var touches = e.touches;
-
 		//console.log(e);
 		if(touches.length===1){
 			var startPos = [e.touches[0].clientX,e.touches[0].clientY];
@@ -542,15 +639,9 @@ define(["jquery","lsystem","d3","audioplayer","spectrum","jquery-ui"],function($
 			canvas2d.removeEventListener("mousedown",panHandler);
 			canvas2d.addEventListener("mousemove",dragMoveHandler,false);
 			window.addEventListener("mouseup",dragStopHandler,false);
-			
-			
 		}
 		function dragMoveHandler(e){
-			
-			//100 100 > 200,200   500 500 > 600 600
-			
 			LSystem.setCenter(e.clientX-startPos[0]+vPos[0],e.clientY-startPos[1]+vPos[1]);
-			//console.log(e)
 			LSystem.redraw();
 		}
 		function dragStopHandler(e){

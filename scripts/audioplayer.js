@@ -15,10 +15,11 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 
 	var analyser = sfx.createAnalyser();
 	var media = sfx.createMediaElementSource($player[0]);
-	
+	//var bufferNode = sfx.createBufferSource();
+	//bufferNode.connect(analyser);
 	media.connect(analyser);
 	analyser.connect(sfx.destination);
-	
+	window.s = sfx;
 	var currentSong = -1;
 	var AudioPlayer = {
 		element:$player[0],
@@ -39,23 +40,70 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 	return AudioPlayer;
 	
 	function AudioPlayerElement(){
+		/*
+		function decode(file){
+			
+			return new Promise(function(cb,err){
+				var fileReader = new FileReader();
+					fileReader.onload = function(){
+						
+							console.log("decoded");
+							
+						},console.error.bind(console));
+					}
+					fileReader.readAsArrayBuffer(file);
+			})
+		}
+		*/
 		
-		
+		function loadFile(url){
+			return new Promise(function(cb,err){
+				var xhr = new XMLHttpRequest();
+				xhr.open("GET",url);
+				xhr.responseType = "arraybuffer";
+				xhr.onload=function(){
+					console.log("response type",typeof xhr.response)
+					
+					console.log("loaded");
+					window.r = xhr.response;
+					sfx.decodeAudioData(xhr.response,function(b){
+						console.log("decoded");
+						cb(b);
+						//window.bn = bufferNode;
+						//window.b = b;
+						bufferNode.buffer = b;
+						//fs.push([b]);
+						//console.log("playing");
+						
+						bufferNode.start(0);
+					});
+					
+					
+				}
+				xhr.send();
+			});
+		}
 		return $(document.createElement("audio"))
 		.on("playTrigger",function(e,url){
 			$(AudioPlayer).trigger("play");
 			$(".play.container>.symbol").fadeOut(500);
 			$(".play.container>.description").fadeIn(500);
+			
 			if(url){
+
 				URL.revokeObjectURL(this.src);
 				this.src="";
 				this.src = url;
-				
+				//console.log(url);
+				//loadFile(url);
 			}else if(fs.length>0&&$(".playing").length===0){
 				$($(".playlist.entry>p")[currentSong]).trigger("click");
 			}
+			
+			//decode(fs[0]).then(function(b){play(b)})
 			this.playing = true;
 			this.play();
+			
 			$(".play.container>.progress").fadeIn(500);
 		})
 		.on("pauseTrigger",function(e){
@@ -104,10 +152,13 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 					d3.select(".playlist.container").call(updateList)
 					if(fs.length===0){
 						$(".play.container").hide();
-						$(".analyser.container").hide();
+						$(".files.container").hide();
 						
 					}else{
+						$(".play.container").show();
+						$(".files.container").show();
 						currentSong=0;
+						//console.dir(entries[0].toURL())
 						$player[0].src=entries[0].toURL();
 					}
 				}
@@ -115,7 +166,7 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 		}else{
 			fs = [];
 			$(".play.container").hide();
-			$(".analyser.container").hide();
+			$(".files.container").hide();
 			
 			fs.push = function(FileList){
 				return new Promise(function(resolve,reject){
@@ -159,7 +210,9 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 			$(".canv.overlay").removeClass("drag").text("");
 			return false;
 		},false);
-
+		$(pickFile).on("click",function(){
+			filePicker.click();
+		})
 		$("#filePicker")
 		.on("change",function(e){
 			//console.log(this.files)
@@ -174,9 +227,17 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 			.call(addFile)
 		}
 		function addFile(selection){
-			selection.append("div")
+			selection.insert("div","#pickFile")
 			.attr("class","playlist entry")
 			.call(addFileName)
+		}
+		function addFooter(selection){
+			selection.append("div")
+			.attr("class","playlist entry footer")
+			.text("+")
+			.on("click",function(){
+				filePicker.click();
+			})
 		}
 		function addFileName(selection){
 			selection.append("p")
@@ -225,7 +286,7 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 			//console.log(fs)
 			if(fs.length===0){
 				$(".play.container").fadeIn(500);
-				$(".analyser.container").fadeIn(500);
+				$(".files.container").fadeIn(500);
 				//$(".files.clickable").off("click");
 			}
 			fs.push(FileList).then(function(files){
@@ -238,8 +299,10 @@ define(["jquery","filesystem","d3","jquery-ui"],function ($,fs,d3){
 			d3.select(".playlist.container").selectAll("div")
 			.data(fs)
 			.enter()
-			.call(addFile);
+			.call(addFile)
+			;
 		}
+		
 	}
 });
 /*

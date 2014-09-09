@@ -2,9 +2,10 @@
 // ported from https://www.shadertoy.com/view/lslGWr
 // Added some stars: Thanks to http://glsl.heroku.com/e#6904.0
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+
+precision highp float;
+precision highp int;
+
 
 uniform float time;
 uniform vec2 mouse;
@@ -37,6 +38,7 @@ float audio(float n){
 }
 // http://www.fractalforums.com/new-theories-and-research/very-simple-formula-for-fractal-patterns/
 float field(in vec3 p) {
+
 	float strength = 2. + .01 * log(1.e-6 + fract(sin(time) * 4373.11));
 	float accum = 0.;
 	float prev = 0.;
@@ -45,7 +47,9 @@ float field(in vec3 p) {
 	for (int i = 0; i < 16; ++i) {
 		float mag = dot(p, p);
 		//p = abs(p) / mag + vec3(-.5, -.3, -.5-bgColor.a);
+		
 		p = abs(p) / mag  + vec3(-.5-mouse.x*.01, -.3-mouse.y*.01, -.5-.025*audio(tw)-bgColor.a);
+		
 		//p = abs(p) / mag + ;
 		float w = exp(-float(i) / 7.);
 		accum += w * exp(-strength * pow(abs(mag - prev), 2.3));
