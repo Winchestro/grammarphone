@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -19,7 +19,7 @@
 		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.css' />
 		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.structure.css' />
 		<link rel='stylesheet' type="text/css" href='scripts/jquery-ui-1.11.1/jquery-ui.theme.css' />
-
+		
 		<link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAGDSURBVCjPVZC9S1thFMZ/533f3HvxJmISImraFFqwIhRpias6FdQiLSWFQJdCO5SW4n/gXBAHJ5dO/gMKluLg5iTapSBKBxH8GGJJaHqLubl53w5JQc9whvN8nIdHuDnDzGGI2aL2/2QAmMDx03s1/3TypUq1480H+8s0biqrVJgvNvecc879de9i9SFzywEg9MKIRRQxv1JBRt8iCMAjRnnMfU45Z2e8MdB9okqkK4WPIkQ68lmgyAJjxM8pd7V6iavXz6oHG50tcuXyD72G8IUzX5fiXVV3qAweITKr+o9W318aVkg4Ik8wIy8EMJ+pXZwnhWozaXw79j9xhxoOhe3lE+BesF146HWitvOtGAYQ6jRobds3XGogsaO23K9Ck5YMfQhtfuORG2l9Tw7NEM3ZbAXqaAwBij9EBBRRfc238tWkiZ4U8j416sRcI4Tk8dB0IAXmZGpwWoAcuV53gsVy3W0Pk10fuis4hDYGEFp0AFDdrUtGImIEsCiSHuywAPwDYjB4OBAMtzcAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTQtMDUtMjRUMTc6MjU6NTcrMDI6MDBhKPD/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE0LTA1LTI0VDE3OjI1OjU3KzAyOjAwEHVIQwAAAABJRU5ErkJggg==">
 	</head>
 	<body>
@@ -27,7 +27,7 @@
 		<canvas id="canvas2d"></canvas>
 		<div id="interface">
 			<div class="head">
-				<!--div id="LSInput" class="inputContainer" tabindex="-1"></div-->
+				
 				<input id="LSInput" type="text" autocomplete="off" placeholder="add a replacement rule (example: L=LL)" value="loading ...">
 			</div>
 			<div class="menu">
@@ -63,7 +63,6 @@
 						<div class="options container" >
 							<svg title="[Left/Right Arrow Key] Click center to round down" class="angle container" xmlns="http://www.w3.org/2000/svg" version="1.1"viewBox="0 0 512 512">
 								<ellipse class="angle clickable" cx="256" cy="256" rx="256" ry="256"></ellipse>
-								<!--path class="angle symbol" d="M 224.00,288.00L 224.00,64.00 C 100.288,64.00,0.00,164.288,0.00,288.00s 100.288,224.00, 224.00,224.00s 224.00-100.288, 224.00-224.00c0.00-36.017-8.514-70.042-23.618-100.191 L 224.00,288.00zM 456.382,123.809C 419.606,50.401, 343.695,0.00, 256.00,0.00l0.00,224.00 L 456.382,123.809z" ></path-->
 								<text class="angle description" x="256" y="256"></text>
 							</svg>
 							<div class="color container">
@@ -179,5 +178,6 @@
 			<input id="filePicker" multiple type="file"/>
 		</div>
 		<script data-main="scripts/demo" src="scripts/require.js"></script>
+		
 	</body>
 </html>

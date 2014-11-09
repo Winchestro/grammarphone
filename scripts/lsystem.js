@@ -48,35 +48,17 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 
 	var turtle = {
 		pushStack:function(){
-			/*
-			if(cursor.i+1===cursor.stack.length)
-			cursor.stack[cursor.i+1]={x:0,y:0,a:0,s:0};
-			cursor.stack[cursor.i+1].x=cursor.stack[cursor.i].x;
-			cursor.stack[cursor.i+1].y=cursor.stack[cursor.i].y;
-			cursor.stack[cursor.i+1].a=cursor.stack[cursor.i].a;
-			cursor.stack[cursor.i+1].s=cursor.stack[cursor.i].s;
-			cursor.i++;
-			*/
-			
-			
 			stackX[cursor+1]=stackX[cursor];
 			stackY[cursor+1]=stackY[cursor];
 			stackA[cursor+1]=stackA[cursor];
 			stackS[cursor+1]=stackS[cursor];
 			cursor++;
-			
 		},
 		popStack:function(){
 			if(cursor>0)
 				cursor--;
 		},
 		translate:function(x){
-			//console.log("stack x,y",cursor.stack[cursor.i].x,cursor.stack[cursor.i].y);
-			//console.log("sin cos",Math.sin(cursor.stack[cursor.i].x),Math.cos(cursor.stack[cursor.i].y))
-			//console.log("angle",cursor.stack[cursor.i].a)
-			//console.log("cos angle",Math.cos(cursor.stack[cursor.i].a))
-			//console.log("x*cos angle",x*Math.cos(cursor.stack[cursor.i].a))
-			//console.log(cursor.stack[cursor.i].y);
 			stackX[cursor]+=x
 				*Math.sin
 				(stackA[cursor])
@@ -85,11 +67,6 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 				*Math.cos
 				(stackA[cursor])
 				*stackS[cursor]);
-			//console.log(cursor.stack[cursor.i].y);
-			//console.log("cursor",cursor.i)
-			//console.log("x,y",x,y);
-			
-
 		},
 		rotate:function(a){
 			stackA[cursor]+=a;
@@ -163,7 +140,6 @@ define(["jquery","audioplayer"],function LSystem($,AudioPlayer){
 		o:function(i,data){
 			if(data){
 				ctx.beginPath()
-				//ctx.fillStyle="hsl("+(data[i%data.length]*1.0)+",100%,50%)";
 				ctx.fillStyle=["hsl(",data[i%data.length]+fruithue-128,",100%,50%)"].join("");
 				ctx.arc(
 					stackX[cursor],

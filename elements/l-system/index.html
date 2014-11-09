@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>lsystem demo</title>
+  		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="../../bower_components/platform/platform.js"></script>
+		<link rel="import" href="l-system.html">
+
+	</head>
+	<body fullbleed>
+		<l-system rule="S=I>[+S][-S]">
+		</l-system>
+		<script>
+			(function(document) {
+			  'use strict';
+
+			  document.addEventListener('polymer-ready', function() {
+			    // Perform some behaviour
+			    console.log('Polymer is ready to rock!');
+			  });
+
+			// wrap document so it plays nice with other libraries
+			// http://www.polymer-project.org/platform/shadow-dom.html#wrappers
+			})(wrap(document));
+		</script>
+	</body>
+</html>
