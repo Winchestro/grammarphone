@@ -1,0 +1,220 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="l-system">
+<template>
+	<style>
+		:host{
+			display:block;
+
+			margin:0;
+			padding:0;
+			width: 100%;
+			height:100%;
+		}
+		#canvas{
+			width: 100%;
+
+			margin:0;
+			padding:0;
+		}
+	</style>
+	<canvas id="canvas" width="{{width}}" height="{{height}}"></canvas>
+</template>
+<script>Polymer(function static(){
+	"use strict;"
+	const PROTOTYPE = {
+		publish:{
+			rule:"",
+			iterations:5,
+			angle:45,
+			scale:.75,
+
+			viewportX:document.documentElement.clientWidth*.5,
+			viewportY:document.documentElement.clientHeight*.75,
+			viewportAngle:Math.PI,
+			viewportScale:0.05,
+			
+			width:document.documentElement.clientWidth,
+			height:document.documentElement.clientHeight,
+			background:"yellowgreen",
+			stroke:"black",
+			fruit:"white",
+			loop:false,
+		},
+		observe:{
+			"rule":"compile",
+			"iterations":"compile",
+			"angle":"redraw",
+			"scale":"redraw",
+			"viewportScale":"redraw",
+			"viewportY":"redraw",
+			"viewportX":"redraw",
+			"viewportAngle":"redraw",
+			"background":"redraw",
+			"stroke":"redraw",
+			"fruit":"redraw"
+		},
+		ready:function(){
+			this.posXStack 	= [];
+			this.posYStack 	= [];
+			this.angleStack = [];
+			this.scaleStack = [];
+			this.cursor 	= 0;
+			this.data 		= new Uint8Array(1);
+			this.ctx 		= this.$.canvas.getContext("2d");
+		},
+		compile:function(){
+			const $ = this;
+			$.compiler = new Worker("compiler.js");
+			$.compiler.postMessage([$.rule,$.iterations]);
+			$.compiler.addEventListener("message",function handler(e){
+				$.compiler.removeEventListener("message",handler);
+				$.fire("compile-success",[e.data]);
+				$.compiledCode = e.data;
+				if(!$.loop)$.redraw();
+			},false);
+		},
+		redraw:function(){
+			const $ = this;
+			loop();
+			function loop(){
+				if($.loop)requestAnimationFrame(loop);
+				$.clear();
+				$.draw();
+			}
+		},
+		clear:function(){
+			this.ctx.fillStyle = this.background;
+			this.ctx.fillRect(0,0,this.width,this.height);
+		},
+		draw:function(){
+			const $ = this;
+			const X = this.ctx;
+
+			$.posXStack[0] 	= $.viewportX;
+			$.posYStack[0] 	= $.viewportY;
+			$.angleStack[0] = $.viewportAngle;
+			$.scaleStack[0] = $.viewportScale;
+			$.cursor 		= 0;
+			X.lineCap  		= "round";
+			
+			for(var i = 0; i < $.compiledCode.length; i++){
+				$[$.compiledCode[i]](i);
+			}
+		},
+		_pushStack:function(){
+			const $ = this;
+			const C = this.cursor;
+			$.posXStack[C + 1]	= $.posXStack[C];
+			$.posYStack[C + 1]	= $.posYStack[C];
+			$.angleStack[C + 1] = $.angleStack[C];
+			$.scaleStack[C + 1]	= $.scaleStack[C];
+			$.cursor++;
+		},
+		_popStack:function(){
+			if(this.cursor>0)
+				this.cursor--;
+		},
+		_translate:function(x){
+			const $ = this;
+			const C = this.cursor;
+			$.posXStack[C] += x * Math.sin( $.angleStack[C] ) * $.scaleStack[C];
+			$.posYStack[C] += x * Math.cos( $.angleStack[C] ) * $.scaleStack[C];
+		},
+		_rotate:function(a){
+			this.angleStack[this.cursor] += a / 180 * Math.PI;
+		},
+		_scale:function(s){
+			this.scaleStack[this.cursor] *= s;
+		},
+		p:function(){
+			this._popStack();
+		},
+		q:function(){
+			this._pushStack();
+		},
+		b:function(){
+			this._rotate(this.angle);
+		},
+		d:function(){
+			this._rotate(-this.angle);
+		},
+		u:function(){
+			this._scale( 1 / this.scaleStackfactor );
+		},
+		n:function(){
+			this._scale(this.scaleStackfactor);
+		},
+		s:function(i){
+			const $ = this;
+			const X = this.ctx;
+			const AMOUNT = Math.floor(this.data[i%this.data.length]/256*10);
+			const SCALE = this.viewportScale * this.width;
+			const WIDTH = SCALE * 25e-2 * this.scaleStack[this.cursor];
+			
+			X.beginPath();
+			X.lineWidth = WIDTH;
+			for(var v = 0; v<AMOUNT; v++){
+				var sample = $.data[i + v % $.data.length];
+
+				$._rotate((sample / 128 - 1 ) * $.angle);
+				X.moveTo($.posXStack[$.cursor],$.posYStack[$.cursor]);
+				$._translate((sample/256 * SCALE) + SCALE);
+				X.lineTo($.posXStack[$.cursor],$.posYStack[$.cursor]);
+			}
+			X.stroke();
+		},
+		w:function(i){
+			this.ctx.beginPath();
+			var n = (Math.floor(dthis.ata[i%this.data.length]/256*10))
+			for(var v = 0; v<n; v++){
+				if(this.data[(i+v)%this.data.length]<96){
+					this.$rotate(this.angle);
+				}else if(this.data[(i+v)%this.data.length]>160){
+					this.$rotate(-this.angle);
+				}
+				this.ctx.moveTo(this.posXStack[this.cursor],this.posYStack[this.cursor]);
+				this.$translate(this.viewportScale/2500000*this.width);
+				this.ctx.lineWidth=this.viewportScale/1e7*this.width*this.scaleStack[this.cursor];
+				this.ctx.lineTo(this.posXStack[this.cursor],this.posYStack[this.cursor]);
+			}
+			this.ctx.stroke();
+		},
+		h:function(i){
+			this.transl((this.data[i%this.data.length]/256*this.viewportScale/2500000*this.width)+this.viewportScale/2500000*canvas2d.width);
+		},
+
+		l:function(i){
+			const $ = this;
+			const X = this.ctx;
+
+			const SCALE = $.viewportScale * $.width;
+			const WIDTH = SCALE * 25e-2 * $.scaleStack[$.cursor];
+			const SAMPLE = $.data[i % $.data.length];
+			const LENGTH = (SAMPLE / 256 * SCALE) + SCALE;
+
+			//console.log(SCALE,LENGTH,WIDTH,I,this);
+			X.beginPath();
+			X.lineWidth=WIDTH;
+			X.moveTo( $.posXStack[$.cursor], $.posYStack[$.cursor] );
+			$._translate(LENGTH);
+			X.lineTo( $.posXStack[$.cursor], $.posYStack[$.cursor]) ;
+			X.stroke();
+		},
+		o:function(i,data){
+			if(data){
+				ctx.beginPath()
+				ctx.fillStyle=["hsl(",data[i%data.length]+fruithue-128,",100%,50%)"].join("");
+				ctx.arc(
+					this.posXStack[this.cursor],
+					this.posYStack[this.cursor],
+					Math.abs(Math.sin(i/100)*data[i%data.length]/256*this.viewportScale/2500000*this.width)*this.scaleStack[this.cursor],
+					0,Math.PI*2);
+				ctx.fill();
+			}
+		}
+	};
+
+	return PROTOTYPE;
+}());</script>
+</polymer-element>
